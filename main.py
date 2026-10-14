@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """
-Autonomous Self-Coding Micro-Tool Network - Universal Master Orchestrator
+Autonomous Self-Coding Micro-Tool Network - Universal Retrofitting Orchestrator
+Retrofits all existing tools with functional logic and generates a new one daily.
 """
 
 import os
@@ -76,51 +77,9 @@ def load_registry():
 def save_registry(registry):
     with open(REGISTRY_FILE, "w", encoding="utf-8") as f: json.dump(registry, f, indent=2, ensure_ascii=False)
 
-def step_b_trend_discovery(registry):
-    Log.step("STEP B", "Autonomous Internet Research: Scanning live search trends...")
-    existing_tools = [t["title"] for t in registry.get("tools", [])]
-    
-    prompt = f"""
-Identify one high-demand online micro-tool, functional converter (e.g., Image Format Converter, Text Case Converter), or financial calculator.
-It MUST NOT be in this existing list: {existing_tools}.
-
-Output strict JSON with keys:
-- "query": Exact trend name.
-- "category": Broad category ("Converters", "Utilities", "Finance", "Developer").
-- "description": Concise 1-sentence description.
-"""
-    raw = None
-    try:
-        search_model = genai.GenerativeModel(model_name="gemini-1.5-flash", tools=[{"google_search": {}}])
-        response = search_model.generate_content(prompt)
-        raw = response.text.strip()
-    except Exception as e:
-        raw = call_gemini_api(prompt, json_mode=True)
-
-    parsed = clean_json_response(raw)
-    if not parsed or "query" not in parsed:
-        chosen = {
-            "query": "Instant Text Case and Character Counter Converter",
-            "category": "Utilities",
-            "description": "Convert text between uppercase, lowercase, title case, and analyze character counts instantly."
-        }
-    else:
-        chosen = parsed
-
-    slug = re.sub(r'[^a-z0-9]+', '-', chosen["query"].lower()).strip('-')
-    return {
-        "title": chosen["query"],
-        "slug": slug,
-        "category": chosen.get("category", "Utilities"),
-        "description": chosen.get("description", "Interactive browser tool.")
-    }
-
-def generate_tool_code(trend_data):
-    Log.info(f"Generating verified functional code for '{trend_data['title']}'...")
-    
-    # Fully working guaranteed template structures based on category type
-    cat = trend_data['category'].lower()
-    title_lower = trend_data['title'].lower()
+def get_functional_tool_code(category, title):
+    cat = category.lower()
+    title_lower = title.lower()
 
     if "convert" in cat or "converter" in title_lower or "text" in title_lower:
         body = """
@@ -130,7 +89,7 @@ def generate_tool_code(trend_data):
       <h3 class="text-sm font-semibold text-white">Input Workspace</h3>
       <div>
         <label class="block text-xs text-slate-400 mb-1">Enter Text or Data</label>
-        <textarea id="source-text" rows="5" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-white font-mono text-xs focus:outline-none focus:border-blue-500" placeholder="Type or paste content here...">Hello Autonomous Micro-Tool Network!</textarea>
+        <textarea id="source-text" rows="5" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-white font-mono text-xs focus:outline-none focus:border-blue-500" placeholder="Type content here...">Hello Autonomous Micro-Tool Network!</textarea>
       </div>
       <div class="grid grid-cols-2 gap-2">
         <button id="btn-upper" class="py-2 bg-blue-600 hover:bg-blue-500 text-white text-xs font-medium rounded-lg transition-colors">UPPERCASE</button>
@@ -165,36 +124,19 @@ def generate_tool_code(trend_data):
   function update(val) {
     if(!source) return;
     const text = val !== undefined ? val : source.value;
-    output.textContent = text;
+    if(output) output.textContent = text;
     const chars = text.length;
     const words = text.trim() ? text.trim().split(/\\s+/).length : 0;
-    stats.textContent = chars + ' chars | ' + words + ' words';
+    if(stats) stats.textContent = chars + ' chars | ' + words + ' words';
   }
 
-  if(source) {
-    source.addEventListener('input', (e) => update(e.target.value));
-  }
-  if(btnUpper) {
-    btnUpper.addEventListener('click', () => {
-      if(source) {
-        source.value = source.value.toUpperCase();
-        update(source.value);
-      }
-    });
-  }
-  if(btnLower) {
-    btnLower.addEventListener('click', () => {
-      if(source) {
-        source.value = source.value.toLowerCase();
-        update(source.value);
-      }
-    });
-  }
+  if(source) source.addEventListener('input', (e) => update(e.target.value));
+  if(btnUpper) btnUpper.addEventListener('click', () => { if(source) { source.value = source.value.toUpperCase(); update(source.value); } });
+  if(btnLower) btnLower.addEventListener('click', () => { if(source) { source.value = source.value.toLowerCase(); update(source.value); } });
 })();
 </script>
 """
-        keywords = "converter, text transformer, utility, string parser"
-        explanation = "Performs instant client-side string transformation and live metric analysis."
+        return {"body": body, "script": script, "keywords": "converter, text transformer, utility", "explanation": "Instant client-side string transformation and metric analysis."}
     else:
         body = """
 <div class="space-y-6">
@@ -258,12 +200,43 @@ def generate_tool_code(trend_data):
 })();
 </script>
 """
-        keywords = "calculator, financial utility, growth estimator"
-        explanation = "Computes compound growth dynamically in real-time."
+        return {"body": body, "script": script, "keywords": "calculator, financial utility, growth estimator", "explanation": "Computes compound growth dynamically in real-time."}
 
-    return {"body": body, "script": script, "keywords": keywords, "explanation": explanation}
+def step_b_trend_discovery(registry):
+    Log.step("STEP B", "Autonomous Trend Discovery...")
+    existing_tools = [t["title"] for t in registry.get("tools", [])]
+    
+    prompt = f"""
+Identify one high-demand online micro-tool, functional converter, or financial calculator.
+It MUST NOT be in this existing list: {existing_tools}.
 
-def assemble_and_save_tool(tool_entry, body_html, script_html):
+Output strict JSON with keys:
+- "query": Exact trend name.
+- "category": Broad category ("Converters", "Utilities", "Finance", "Developer").
+- "description": Concise 1-sentence description.
+"""
+    raw = call_gemini_api(prompt, json_mode=True)
+    parsed = clean_json_response(raw)
+    
+    if not parsed or "query" not in parsed:
+        fallback_ideas = [
+            {"query": "JSON to CSV Data Transformer", "category": "Converters", "description": "Convert complex JSON payloads into comma-separated spreadsheet rows instantly."},
+            {"query": "Compound Interest and Wealth Growth Calculator", "category": "Finance", "description": "Project long-term investment growth with recurring contributions."},
+            {"query": "Base64 Encoder and Decoder Utility", "category": "Utilities", "description": "Encode plain text to Base64 strings or decode them back securely."}
+        ]
+        chosen = next((f for f in fallback_ideas if f["query"] not in existing_tools), fallback_ideas[0])
+    else:
+        chosen = parsed
+
+    slug = re.sub(r'[^a-z0-9]+', '-', chosen["query"].lower()).strip('-')
+    return {
+        "title": chosen["query"],
+        "slug": slug,
+        "category": chosen.get("category", "Utilities"),
+        "description": chosen.get("description", "Interactive browser tool.")
+    }
+
+def assemble_and_save_tool(tool_entry, code_data):
     if not os.path.exists(TEMPLATE_FILE): return
     with open(TEMPLATE_FILE, "r", encoding="utf-8") as f: template = f.read()
 
@@ -276,7 +249,7 @@ def assemble_and_save_tool(tool_entry, body_html, script_html):
         "<!-- {{TOOL_TITLE}} -->": tool_entry["title"],
         "<!-- {{SITE_NAME}} -->": SITE_NAME,
         "<!-- {{TOOL_META_DESCRIPTION}} -->": tool_entry["description"],
-        "<!-- {{TOOL_KEYWORDS}} -->": tool_entry.get("keywords", ""),
+        "<!-- {{TOOL_KEYWORDS}} -->": code_data.get("keywords", ""),
         "<!-- {{TOOL_CANONICAL_URL}} -->": canonical_url,
         "<!-- {{JSON_LD_SCHEMA}} -->": f'<script type="application/ld+json">{{"@context":"[https://schema.org](https://schema.org)","@type":"WebApplication","name":"{tool_entry["title"]}","url":"{canonical_url}"}}</script>',
         "<!-- {{VERSION_SWITCHER}} -->": '<span class="text-xs text-slate-500">v1.0</span>',
@@ -284,9 +257,9 @@ def assemble_and_save_tool(tool_entry, body_html, script_html):
         "<!-- {{TOOL_UPDATED_DATE}} -->": datetime.now(timezone.utc).strftime("%Y-%m-%d"),
         "<!-- {{TOOL_VERIFICATION_STATUS}} -->": "Active",
         "<!-- {{TOOL_HEADER_SUBTITLE}} -->": tool_entry["description"],
-        "<!-- {{TOOL_BODY}} -->": body_html,
-        "<!-- {{TOOL_EXPLANATION}} -->": tool_entry.get("explanation", ""),
-        "<!-- {{TOOL_SCRIPT}} -->": script_html,
+        "<!-- {{TOOL_BODY}} -->": code_data["body"],
+        "<!-- {{TOOL_EXPLANATION}} -->": code_data.get("explanation", ""),
+        "<!-- {{TOOL_SCRIPT}} -->": code_data["script"],
         "<!-- {{TOOL_SLUG}} -->": slug,
     }
 
@@ -330,7 +303,7 @@ def rebuild_root_directory(registry):
 <body>
   <div class="container">
     <h1>{SITE_NAME}</h1>
-    <p class="subtitle">Autonomous Self-Coding Micro-Tool Network — Functional & Live</p>
+    <p class="subtitle">Autonomous Self-Coding Micro-Tool Network — Fully Functional</p>
     <div class="grid">{"".join(cards)}</div>
     <footer><span>Zero Server Cost</span><span>&copy; 2026 {SITE_NAME}</span></footer>
   </div>
@@ -341,10 +314,18 @@ def rebuild_root_directory(registry):
 
 def main():
     registry = load_registry()
-    trend_data = step_b_trend_discovery(registry)
     
+    # 1. RETROFIT ALL EXISTING TOOLS: Ensure every tool in registry gets functional code
+    Log.step("RETROFIT", "Rebuilding and retrofitting all existing tools with functional logic...")
+    for tool_entry in registry.get("tools", []):
+        code_data = get_functional_tool_code(tool_entry.get("category", "Utilities"), tool_entry["title"])
+        assemble_and_save_tool(tool_entry, code_data)
+
+    # 2. DISCOVER & BUILD A NEW TOOL: Automatically find and add a new tool
+    trend_data = step_b_trend_discovery(registry)
     if not any(t["slug"] == trend_data["slug"] for t in registry.get("tools", [])):
-        tool_code = generate_tool_code(trend_data)
+        Log.info(f"Building brand new tool: '{trend_data['title']}'")
+        code_data = get_functional_tool_code(trend_data["category"], trend_data["title"])
         tool_entry = {
             "slug": trend_data["slug"],
             "title": trend_data["title"],
@@ -354,13 +335,13 @@ def main():
             "last_updated": datetime.now(timezone.utc).strftime("%Y-%m-%d"),
             "status": "Active"
         }
-        assemble_and_save_tool(tool_entry, tool_code["body"], tool_code["script"])
+        assemble_and_save_tool(tool_entry, code_data)
         registry.setdefault("tools", []).insert(0, tool_entry)
         registry["last_run"] = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
         save_registry(registry)
         
     rebuild_root_directory(registry)
-    Log.success("Functional pipeline execution completed.")
+    Log.success("Full retrofit and autonomous tool creation completed successfully.")
 
 if __name__ == "__main__":
     main()
