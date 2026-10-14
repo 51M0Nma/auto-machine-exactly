@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Autonomous Self-Coding Micro-Tool Network - Universal Master Orchestrator
-Autonomously discovers any trend and commands Gemini AI to code it dynamically.
+Performs live internet research for trends, commands Gemini AI to code them, and deploys statically.
 """
 
 import os
@@ -79,24 +79,40 @@ def save_registry(registry):
     with open(REGISTRY_FILE, "w", encoding="utf-8") as f: json.dump(registry, f, indent=2, ensure_ascii=False)
 
 def step_b_trend_discovery(registry):
-    Log.step("STEP B", "Autonomous Trend Discovery: Identifying open web utility trends...")
+    Log.step("STEP B", "Autonomous Internet Research: Scanning live web search trends for new micro-tools...")
     existing_tools = [t["title"] for t in registry.get("tools", [])]
     
     prompt = f"""
-Identify one high-demand online micro-tool, file converter, developer utility, or calculator search query that is NOT in this existing list: {existing_tools}.
+You are an autonomous market research agent. Research current web search trends, developer forums, and high-demand utility software needs on the internet.
+Identify one trending online micro-tool, file converter, utility, or calculator that people are actively searching for online.
+This tool MUST NOT be in this existing list: {existing_tools}.
+
 Output strict JSON with keys:
-- "query": The exact search trend topic name (e.g., "PDF to JPG Image Extractor", "JSON to CSV Converter", "Compound Interest Calculator").
+- "query": The exact trend topic name (e.g., "HEIC to PNG Image Converter", "JSON Schema Validator", "Loan Payoff Calculator").
 - "category": Broad category (e.g., "Converters", "Developer", "Utilities", "Finance").
-- "description": A concise 1-sentence description of what the tool calculates or converts.
+- "description": A concise 1-sentence description of what the tool does.
 """
-    raw = call_gemini_api(prompt, json_mode=True)
+    
+    # Active Google Search grounding for live internet research
+    raw = None
+    try:
+        search_model = genai.GenerativeModel(
+            model_name="gemini-1.5-flash",
+            tools=[{"google_search": {}}]
+        )
+        response = search_model.generate_content(prompt)
+        raw = response.text.strip()
+    except Exception as e:
+        Log.warn(f"Live search grounding fallback triggered: {str(e)}")
+        raw = call_gemini_api(prompt, json_mode=True)
+
     parsed = clean_json_response(raw)
     
     if not parsed or "query" not in parsed:
         chosen = {
-            "query": "Client-Side PDF to Image Extractor",
+            "query": "HEIC to JPG Image Converter",
             "category": "Converters",
-            "description": "Extract pages from PDF files directly into image formats securely in your browser."
+            "description": "Convert Apple HEIC photos into standard JPG format instantly in your browser."
         }
     else:
         chosen = parsed
@@ -323,7 +339,7 @@ def main():
         save_registry(registry)
         
     rebuild_root_directory(registry)
-    Log.success("Universal autonomous pipeline run completed successfully.")
+    Log.success("Live-researched universal autonomous pipeline run completed successfully.")
 
 if __name__ == "__main__":
     main()
