@@ -38,5 +38,5 @@ jobs:
           git commit -m "Autonomous nightly tool update [skip ci]" || echo "No changes to commit"
           git push
 
-      - name: Deploy to GitHub Pages
-        uses: actions/deploy-pages@v4
+- name: Deploy to GitHub Pages
+  uses: actions/deploy-pages@v4
