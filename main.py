@@ -55,7 +55,7 @@ def call_gemini_api(prompt, system_instruction=None, json_mode=False, max_retrie
         return None
 
     model_name = "gemini-1.5-flash"
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent?key={GEMINI_API_KEY}"
+    url = f"https://generativelanguage.googleapis.com/v1/models/{model_name}:generateContent?key={GEMINI_API_KEY}"
 
     payload = {
         "contents": [{"parts": [{"text": prompt}]}],
