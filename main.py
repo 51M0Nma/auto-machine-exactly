@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/init/env python3
 """
 Autonomous Self-Coding Micro-Tool Network - Master Orchestrator
 """
@@ -43,7 +43,6 @@ def call_gemini_api(prompt, json_mode=False):
         return None
 
     try:
-        # Use gemini-1.5-flash via official SDK
         generation_config = {"temperature": 0.2 if json_mode else 0.4}
         if json_mode:
             generation_config["response_mime_type"] = "application/json"
@@ -177,7 +176,8 @@ def rebuild_root_directory(registry):
     tools = registry.get("tools", [])
     cards = []
     for t in tools:
-        cards.append(f'<div class="p-5 bg-slate-900 border border-slate-800 rounded-xl"><a href="/{t["slug"]}/" class="text-blue-400 font-semibold">{t["title"]}</a><p class="text-xs text-slate-400 mt-1">{t["description"]}</p></div>')
+        # Using relative links './{t["slug"]}/' to prevent 404 sub-path issues on GitHub Pages
+        cards.append(f'<div class="p-5 bg-slate-900 border border-slate-800 rounded-xl"><a href="./{t["slug"]}/" class="text-blue-400 font-semibold">{t["title"]}</a><p class="text-xs text-slate-400 mt-1">{t["description"]}</p></div>')
 
     root_html = f"""<!DOCTYPE html>
 <html lang="en" class="h-full bg-slate-950 text-slate-100">
