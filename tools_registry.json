@@ -1,6 +1,15 @@
 {
   "tools": [
     {
+      "slug": "json-to-typescript-interface-generator",
+      "title": "JSON to TypeScript Interface Generator",
+      "description": "Convert raw JSON payloads into strict TypeScript interfaces instantly.",
+      "category": "Developer",
+      "version": "1.0",
+      "last_updated": "2026-10-14",
+      "status": "Active"
+    },
+    {
       "slug": "saas-customer-ltv-to-cac-ratio-calculator",
       "title": "SaaS Customer LTV to CAC Ratio Calculator",
       "description": "Calculate customer lifetime value relative to acquisition cost.",
@@ -28,5 +37,5 @@
       "status": "Active"
     }
   ],
-  "last_run": "2026-10-14 12:37:18"
+  "last_run": "2026-10-14 12:41:52"
 }
