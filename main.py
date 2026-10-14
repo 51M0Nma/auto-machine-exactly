@@ -272,37 +272,4 @@ def assemble_and_save_tool(tool_entry, body_html, script_html):
 
     replacements = {
         "<!-- {{TOOL_TITLE}} -->": tool_entry["title"],
-        "<!-- {{SITE_NAME}} -->": SITE_NAME,
-        "<!-- {{TOOL_META_DESCRIPTION}} -->": tool_entry["description"],
-        "<!-- {{TOOL_KEYWORDS}} -->": tool_entry.get("keywords", ""),
-        "<!-- {{TOOL_CANONICAL_URL}} -->": canonical_url,
-        "<!-- {{JSON_LD_SCHEMA}} -->": f'<script type="application/ld+json">{{"@context":"[https://schema.org](https://schema.org)","@type":"WebApplication","name":"{tool_entry["title"]}","url":"{canonical_url}"}}</script>',
-        "<!-- {{VERSION_SWITCHER}} -->": '<span class="text-xs text-slate-500">v1.0</span>',
-        "<!-- {{TOOL_CATEGORY}} -->": tool_entry.get("category", "Finance"),
-        "<!-- {{TOOL_UPDATED_DATE}} -->": datetime.now(timezone.utc).strftime("%Y-%m-%d"),
-        "<!-- {{TOOL_VERIFICATION_STATUS}} -->": "Active",
-        "<!-- {{TOOL_HEADER_SUBTITLE}} -->": tool_entry["description"],
-        "<!-- {{TOOL_BODY}} -->": body_html,
-        "<!-- {{TOOL_EXPLANATION}} -->": tool_entry.get("explanation", ""),
-        "<!-- {{TOOL_SCRIPT}} -->": script_html,
-        "<!-- {{TOOL_SLUG}} -->": slug,
-    }
-
-    final_html = template
-    for placeholder, val in replacements.items():
-        final_html = final_html.replace(placeholder, str(val))
-
-    with open(os.path.join(tool_dir, "index.html"), "w", encoding="utf-8") as f:
-        f.write(final_html)
-
-def rebuild_root_directory(registry):
-    Log.step("STEP E", "Rebuilding central Root Directory Index with Native Dark UI...")
-    tools = registry.get("tools", [])
-    cards = []
-    for t in tools:
-        cards.append(f'''
-        <div style="background-color: #0f172a; border: 1px solid #1e293b; border-radius: 0.75rem; padding: 1.25rem; transition: border-color 0.2s;">
-            <a href="./{t["slug"]}/" style="color: #60a5fa; font-weight: 600; font-size: 1.1rem; text-decoration: none;">{t["title"]}</a>
-            <p style="color: #94a3b8; font-size: 0.875rem; margin-top: 0.35rem; line-height: 1.4;">{t["description"]}</p>
-            <div style="margin-top: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
-                <span style="font-size: 0.7rem; background-color: #1e293b; color: #38bdf8; padding: 0.15rem 0.5rem; border-radius: 9999px;">{t.get("category", "Finance")}
+        "<!--
