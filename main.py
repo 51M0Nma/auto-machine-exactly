@@ -925,22 +925,12 @@ def rebuild_root_directory(registry):
 
 
 # ==============================================================================
-# STEP F: AUTOMATED FIREBASE HOSTING DEPLOYMENT TRIGGER
+# STEP F: GITHUB PAGES STATIC DEPLOYMENT
 # ==============================================================================
 
 def step_f_firebase_deploy():
-    Log.step("STEP F", "Automated Firebase Hosting Deployment Trigger...")
-    if not FIREBASE_TOKEN:
-        Log.warn("FIREBASE_TOKEN secret not configured in environment. Skipping direct CLI deploy.")
-        Log.info("Deploy command for GitHub Actions: firebase deploy --only hosting --token $FIREBASE_TOKEN")
-        return
-
-    Log.info("Executing Firebase Hosting deployment...")
-    ret = os.system(f'firebase deploy --only hosting --token "{FIREBASE_TOKEN}" --non-interactive')
-    if ret == 0:
-        Log.success("Live deployment to Firebase CDN succeeded!")
-    else:
-        Log.warn(f"Firebase deployment command returned exit status {ret}.")
+    Log.step("STEP F", "GitHub Pages Static Deployment Trigger...")
+    Log.success("All tools, archives, and root directory successfully compiled. GitHub Actions workflow will commit and publish files live!")
 
 
 # ==============================================================================
