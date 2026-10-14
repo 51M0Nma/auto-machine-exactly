@@ -30,6 +30,11 @@ jobs:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: python main.py
 
+      - name: Upload pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.'
+
       - name: Commit and Push Generated Tool
         run: |
           git config --global user.name "AI Machine Bot"
@@ -38,5 +43,5 @@ jobs:
           git commit -m "Autonomous nightly tool update [skip ci]" || echo "No changes to commit"
           git push
 
-- name: Deploy to GitHub Pages
-  uses: actions/deploy-pages@v4
+      - name: Deploy to GitHub Pages
+        uses: actions/deploy-pages@v4
