@@ -36,8 +36,8 @@ class Log:
     @classmethod
     def error(cls, msg): print(f"[ERROR] {msg}", flush=True)
 
-def generate_tool_code(trend_data):
-    Log.info(f"Generating executable tool code for '{trend_data['tool_title']}'...")
+def generate_tool_code(tool_entry):
+    Log.info(f"Generating executable tool code for '{tool_entry['title']}'...")
     return {
         "body": """
 <div class="space-y-6">
