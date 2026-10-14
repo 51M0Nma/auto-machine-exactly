@@ -1,9 +1,11 @@
 name: Autonomous Living Tool Network
 
 on:
-  schedule:
-    - cron: '0 0 * * *'
+  push:
+    branches: [ main ]
   workflow_dispatch:
+  schedule:
+    - cron: '0 0 * * *' # Runs daily to research and deploy new tools
 
 permissions:
   contents: write
@@ -15,33 +17,28 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.10'
 
       - name: Install dependencies
-        run: pip install requests google-generativeai
+        run: |
+          python -m pip install --upgrade pip
+          pip install google-generativeai
 
       - name: Run Autonomous Orchestrator
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: python main.py
 
-      - name: Upload pages artifact
+      - name: Upload artifact for GitHub Pages
         uses: actions/upload-pages-artifact@v3
         with:
           path: '.'
 
-      - name: Commit and Push Generated Tool
-        run: |
-          git config --global user.name "AI Machine Bot"
-          git config --global user.email "bot@ai.local"
-          git add .
-          git commit -m "Autonomous nightly tool update [skip ci]" || echo "No changes to commit"
-          git push
-
       - name: Deploy to GitHub Pages
+        id: deployment
         uses: actions/deploy-pages@v4
