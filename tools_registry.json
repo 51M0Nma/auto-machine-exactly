@@ -1,6 +1,15 @@
 {
   "tools": [
     {
+      "slug": "saas-customer-ltv-to-cac-ratio-calculator",
+      "title": "SaaS Customer LTV to CAC Ratio Calculator",
+      "description": "Calculate customer lifetime value relative to acquisition cost.",
+      "category": "SaaS",
+      "version": "1.0",
+      "last_updated": "2026-10-14",
+      "status": "Active"
+    },
+    {
       "slug": "ai-inference-token-cost-estimator",
       "title": "AI Inference Token Cost Estimator",
       "description": "Calculate input/output token pricing across AI models",
@@ -19,5 +28,5 @@
       "status": "Active"
     }
   ],
-  "last_run": null
+  "last_run": "2026-10-14 12:37:18"
 }
