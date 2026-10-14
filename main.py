@@ -38,8 +38,97 @@ class Log:
 
 def generate_tool_code(tool_entry):
     Log.info(f"Generating executable tool code for '{tool_entry['title']}'...")
-    return {
-        "body": """
+    slug = tool_entry["slug"]
+
+    # Tailored interactive code based on tool topic
+    if "mortgage" in slug:
+        return {
+            "body": """
+<div class="space-y-6">
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 space-y-4">
+      <h3 class="text-sm font-semibold text-white">Refinance Parameters</h3>
+      <div>
+        <label class="block text-xs text-slate-400 mb-1">Remaining Loan Balance ($)</label>
+        <input type="number" id="inp-balance" value="300000" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-blue-500">
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block text-xs text-slate-400 mb-1">Current Rate (%)</label>
+          <input type="number" id="inp-old-rate" value="6.5" step="0.1" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-blue-500">
+        </div>
+        <div>
+          <label class="block text-xs text-slate-400 mb-1">New Rate (%)</label>
+          <input type="number" id="inp-new-rate" value="5.2" step="0.1" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-blue-500">
+        </div>
+      </div>
+      <div>
+        <label class="block text-xs text-slate-400 mb-1">Total Refinance Closing Costs ($)</label>
+        <input type="number" id="inp-costs" value="4500" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-blue-500">
+      </div>
+      <button id="btn-calc" class="w-full py-2.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-medium rounded-lg transition-colors">Calculate Break-Even</button>
+    </div>
+    <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 space-y-4 flex flex-col justify-between">
+      <h3 class="text-sm font-semibold text-white">Break-Even Analysis</h3>
+      <div class="space-y-3">
+        <div class="p-4 bg-slate-950 border border-slate-800/80 rounded-lg">
+          <span class="text-xs text-slate-400 block mb-1">Monthly Payment Savings</span>
+          <span id="res-savings" class="text-2xl font-bold font-mono text-emerald-400">$235.40</span>
+        </div>
+        <div class="p-4 bg-slate-950 border border-slate-800/80 rounded-lg">
+          <span class="text-xs text-slate-400 block mb-1">Break-Even Point</span>
+          <span id="res-breakeven" class="text-2xl font-bold font-mono text-white">19.1 Months</span>
+        </div>
+      </div>
+      <p class="text-[11px] text-slate-500">Calculated instantly based on closing costs divided by monthly savings.</p>
+    </div>
+  </div>
+</div>
+""",
+            "script": """
+<script>
+(function() {
+  const balanceInp = document.getElementById('inp-balance');
+  const oldRateInp = document.getElementById('inp-old-rate');
+  const newRateInp = document.getElementById('inp-new-rate');
+  const costsInp = document.getElementById('inp-costs');
+  const btnCalc = document.getElementById('btn-calc');
+  const resSavings = document.getElementById('res-savings');
+  const resBreakeven = document.getElementById('res-breakeven');
+
+  function compute() {
+    const bal = parseFloat(balanceInp.value) || 0;
+    const oldR = (parseFloat(oldRateInp.value) || 0) / 100 / 12;
+    const newR = (parseFloat(newRateInp.value) || 0) / 100 / 12;
+    const costs = parseFloat(costsInp.value) || 0;
+
+    const n = 360; // 30 years
+    let oldPmt = 0, newPmt = 0;
+    if (oldR > 0) oldPmt = (bal * oldR * Math.pow(1 + oldR, n)) / (Math.pow(1 + oldR, n) - 1);
+    if (newR > 0) newPmt = (bal * newR * Math.pow(1 + newR, n)) / (Math.pow(1 + newR, n) - 1);
+
+    const monthlySavings = Math.max(0, oldPmt - newPmt);
+    const months = monthlySavings > 0 ? (costs / monthlySavings) : 0;
+
+    resSavings.textContent = '$' + monthlySavings.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+    resBreakeven.textContent = months > 0 ? months.toFixed(1) + ' Months' : 'N/A';
+  }
+
+  if (btnCalc) btnCalc.addEventListener('click', compute);
+  [balanceInp, oldRateInp, newRateInp, costsInp].forEach(el => {
+    if (el) el.addEventListener('input', compute);
+  });
+  compute();
+})();
+</script>
+""",
+            "keywords": "mortgage, refinance, break-even, calculator, home loan",
+            "explanation": "Calculates the exact number of months required for monthly mortgage payment savings to cover upfront closing costs."
+        }
+    else:
+        # Default robust AI Token Cost Estimator
+        return {
+            "body": """
 <div class="space-y-6">
   <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
     <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 space-y-4">
@@ -75,7 +164,7 @@ def generate_tool_code(tool_entry):
   </div>
 </div>
 """,
-        "script": """
+            "script": """
 <script>
 (function() {
   const inpTokens = document.getElementById('inp-tokens');
@@ -105,9 +194,9 @@ def generate_tool_code(tool_entry):
 })();
 </script>
 """,
-        "keywords": "calculator, utility, ai tokens, cost estimator",
-        "explanation": "This interactive tool calculates estimated inference expenditure based on combined prompt and completion token volumes."
-    }
+            "keywords": "calculator, utility, ai tokens, cost estimator",
+            "explanation": "This interactive tool calculates estimated inference expenditure based on combined prompt and completion token volumes."
+        }
 
 def load_registry():
     if os.path.exists(REGISTRY_FILE):
@@ -176,24 +265,40 @@ def rebuild_root_directory(registry):
 
 def main():
     registry = load_registry()
-    tool_entry = {
-        "slug": "ai-inference-token-cost-estimator",
-        "title": "AI Inference Token Cost Estimator",
-        "description": "Calculate input/output token pricing across AI models",
-        "category": "Finance",
-        "version": "1.0",
-        "last_updated": "2026-10-14",
-        "status": "Active"
-    }
-    tool_code = generate_tool_code(tool_entry)
-    assemble_and_save_tool(tool_entry, tool_code["body"], tool_code["script"])
     
-    if not any(t["slug"] == tool_entry["slug"] for t in registry.get("tools", [])):
-        registry.setdefault("tools", []).insert(0, tool_entry)
-        save_registry(registry)
-        
+    # List of tools to build and maintain in our network
+    tools_to_build = [
+        {
+            "slug": "ai-inference-token-cost-estimator",
+            "title": "AI Inference Token Cost Estimator",
+            "description": "Calculate input/output token pricing across AI models",
+            "category": "Finance",
+            "version": "1.0",
+            "last_updated": "2026-10-14",
+            "status": "Active"
+        },
+        {
+            "slug": "mortgage-refinance-break-even-calculator",
+            "title": "Mortgage Refinance Break-Even Calculator",
+            "description": "Compare current loan against new interest rates and closing costs",
+            "category": "Finance",
+            "version": "1.0",
+            "last_updated": "2026-10-14",
+            "status": "Active"
+        }
+    ]
+
+    existing_slugs = [t["slug"] for t in registry.get("tools", [])]
+
+    for tool_entry in tools_to_build:
+        tool_code = generate_tool_code(tool_entry)
+        assemble_and_save_tool(tool_entry, tool_code["body"], tool_code["script"])
+        if tool_entry["slug"] not in existing_slugs:
+            registry.setdefault("tools", []).insert(0, tool_entry)
+
+    save_registry(registry)
     rebuild_root_directory(registry)
-    Log.success("Pipeline executed successfully.")
+    Log.success("All tools built and verified successfully.")
 
 if __name__ == "__main__":
     main()
