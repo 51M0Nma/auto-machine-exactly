@@ -1,6 +1,15 @@
 {
   "tools": [
     {
+      "slug": "heic-to-jpg-image-converter",
+      "title": "HEIC to JPG Image Converter",
+      "description": "Convert Apple HEIC photos into standard JPG format instantly in your browser.",
+      "category": "Converters",
+      "version": "1.0",
+      "last_updated": "2026-10-14",
+      "status": "Active"
+    },
+    {
       "slug": "client-side-pdf-to-image-extractor",
       "title": "Client-Side PDF to Image Extractor",
       "description": "Extract pages from PDF files directly into image formats in your browser.",
@@ -46,5 +55,5 @@
       "status": "Active"
     }
   ],
-  "last_run": "2026-10-14 12:52:39"
+  "last_run": "2026-10-14 13:45:49"
 }
