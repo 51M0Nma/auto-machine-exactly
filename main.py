@@ -1,7 +1,7 @@
-#!/usr/bin/env python3
+#!/usr/init/env python3
 """
 Autonomous Self-Coding Micro-Tool Network - Master Orchestrator
-Continuously discovers trends, codes tools via Gemini AI, and deploys statically.
+Continuously discovers high-intent financial/utility trends, codes tools, and deploys statically.
 """
 
 import os
@@ -79,39 +79,33 @@ def save_registry(registry):
     with open(REGISTRY_FILE, "w", encoding="utf-8") as f: json.dump(registry, f, indent=2, ensure_ascii=False)
 
 def step_b_trend_discovery(registry):
-    Log.step("STEP B", "Autonomous Trend Discovery: Querying high-intent search utility trends...")
+    Log.step("STEP B", "Autonomous Trend Discovery: Targeting high-intent financial & utility calculators...")
     existing_tools = [t["title"] for t in registry.get("tools", [])]
     
-    prompt = f"""
-Identify one high-demand, trending online micro-tool or calculator search query (e.g. financial, developer, SaaS, or productivity utility) that is NOT in this existing list: {existing_tools}.
-Output strict JSON with keys:
-- "query": The exact search trend topic name.
-- "category": Broad category (e.g., "Finance", "Developer", "SaaS", "Utility").
-- "description": A concise 1-sentence meta description of what the tool calculates or solves.
-"""
-    raw = call_gemini_api(prompt, json_mode=True)
-    parsed = clean_json_response(raw)
+    # High-intent, high-converting financial & utility pool with direct commercial/affiliate value
+    high_intent_pool = [
+        {"query": "Compound Interest and Wealth Growth Calculator", "category": "Finance", "description": "Project long-term investment growth with monthly contributions and compound returns."},
+        {"query": "Loan Amortization Schedule Calculator", "category": "Finance", "description": "Break down monthly loan payments into principal and interest over time."},
+        {"query": "SaaS Subscription Revenue & MRR Growth Calculator", "category": "Business", "description": "Forecast monthly recurring revenue, churn impact, and user growth metrics."},
+        {"query": "Freelance Hourly Rate to Annual Salary Calculator", "category": "Business", "description": "Determine exact billable hourly rates based on desired salary and overhead expenses."},
+        {"query": "Retirement Nest Egg Drawdown Calculator", "category": "Finance", "description": "Calculate safe retirement portfolio withdrawal rates and depletion timelines."}
+    ]
     
-    if not parsed or "query" not in parsed:
-        fallbacks = [
-            {"query": "SaaS Customer LTV to CAC Ratio Calculator", "category": "SaaS", "description": "Calculate customer lifetime value relative to acquisition cost."},
-            {"query": "JSON to TypeScript Interface Generator", "category": "Developer", "description": "Convert raw JSON payloads into strict TypeScript interfaces instantly."},
-            {"query": "Compound Interest and Retirement Growth Calculator", "category": "Finance", "description": "Project long-term investment growth with recurring contributions."}
-        ]
-        chosen = next((f for f in fallbacks if f["query"] not in existing_tools), fallbacks[0])
-    else:
-        chosen = parsed
+    chosen = next((item for item in high_intent_pool if item["query"] not in existing_tools), None)
+    
+    if not chosen:
+        chosen = {"query": f"Advanced Financial ROI Estimator v{len(existing_tools) + 1}", "category": "Finance", "description": "Calculate return on investment across capital allocations."}
 
     slug = re.sub(r'[^a-z0-9]+', '-', chosen["query"].lower()).strip('-')
     return {
         "title": chosen["query"],
         "slug": slug,
-        "category": chosen.get("category", "Utility"),
+        "category": chosen.get("category", "Finance"),
         "description": chosen.get("description", "Interactive calculation tool.")
     }
 
 def generate_tool_code(trend_data):
-    Log.info(f"Generating executable code for '{trend_data['title']}' via Gemini AI...")
+    Log.info(f"Generating executable code for '{trend_data['title']}'...")
     slug = trend_data["slug"]
 
     if "mortgage" in slug:
@@ -203,32 +197,32 @@ def generate_tool_code(trend_data):
     <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 space-y-4">
       <h3 class="text-sm font-semibold text-white">Input Parameters</h3>
       <div>
-        <label class="block text-xs text-slate-400 mb-1">Input / Prompt Tokens (Count)</label>
-        <input type="number" id="inp-tokens" value="50000" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-blue-500">
+        <label class="block text-xs text-slate-400 mb-1">Principal / Initial Amount ($)</label>
+        <input type="number" id="inp-principal" value="50000" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-blue-500">
       </div>
       <div>
-        <label class="block text-xs text-slate-400 mb-1">Output / Completion Tokens (Count)</label>
-        <input type="number" id="out-tokens" value="10000" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-blue-500">
+        <label class="block text-xs text-slate-400 mb-1">Annual Interest Rate (%)</label>
+        <input type="number" id="inp-rate" value="8.0" step="0.1" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-blue-500">
       </div>
       <div>
-        <label class="block text-xs text-slate-400 mb-1">Model Rate ($ per 1M tokens)</label>
-        <input type="number" id="model-rate" value="0.50" step="0.05" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-blue-500">
+        <label class="block text-xs text-slate-400 mb-1">Time Horizon (Years)</label>
+        <input type="number" id="inp-years" value="10" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-blue-500">
       </div>
-      <button id="btn-calc" class="w-full py-2.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-medium rounded-lg transition-colors">Calculate Estimated Cost</button>
+      <button id="btn-calc" class="w-full py-2.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-medium rounded-lg transition-colors">Calculate Growth</button>
     </div>
     <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 space-y-4 flex flex-col justify-between">
-      <h3 class="text-sm font-semibold text-white">Estimated Inference Expenses</h3>
+      <h3 class="text-sm font-semibold text-white">Projection Results</h3>
       <div class="space-y-3">
         <div class="p-4 bg-slate-950 border border-slate-800/80 rounded-lg">
-          <span class="text-xs text-slate-400 block mb-1">Total Token Volume</span>
-          <span id="res-volume" class="text-2xl font-bold font-mono text-white">60,000 Tokens</span>
+          <span class="text-xs text-slate-400 block mb-1">Total Final Value</span>
+          <span id="res-total" class="text-2xl font-bold font-mono text-white">$107,946.25</span>
         </div>
         <div class="p-4 bg-slate-950 border border-slate-800/80 rounded-lg">
-          <span class="text-xs text-slate-400 block mb-1">Total Estimated Cost</span>
-          <span id="res-cost" class="text-2xl font-bold font-mono text-emerald-400">$0.03</span>
+          <span class="text-xs text-slate-400 block mb-1">Estimated Interest Earned</span>
+          <span id="res-interest" class="text-2xl font-bold font-mono text-emerald-400">$57,946.25</span>
         </div>
       </div>
-      <p class="text-[11px] text-slate-500">Computed instantly in your browser based on active pricing parameters.</p>
+      <p class="text-[11px] text-slate-500">Computed instantly in your browser based on compound interest formulas.</p>
     </div>
   </div>
 </div>
@@ -236,35 +230,35 @@ def generate_tool_code(trend_data):
         script = """
 <script>
 (function() {
-  const inpTokens = document.getElementById('inp-tokens');
-  const outTokens = document.getElementById('out-tokens');
-  const modelRate = document.getElementById('model-rate');
+  const pInp = document.getElementById('inp-principal');
+  const rInp = document.getElementById('inp-rate');
+  const yInp = document.getElementById('inp-years');
   const btnCalc = document.getElementById('btn-calc');
-  const resVolume = document.getElementById('res-volume');
-  const resCost = document.getElementById('res-cost');
+  const resTotal = document.getElementById('res-total');
+  const resInterest = document.getElementById('res-interest');
 
   function compute() {
-    const inCount = parseFloat(inpTokens.value) || 0;
-    const outCount = parseFloat(outTokens.value) || 0;
-    const rate = parseFloat(modelRate.value) || 0;
+    const p = parseFloat(pInp.value) || 0;
+    const r = (parseFloat(rInp.value) || 0) / 100;
+    const t = parseFloat(yInp.value) || 0;
 
-    const totalTokens = inCount + outCount;
-    const cost = (totalTokens / 1000000) * rate;
+    const total = p * Math.pow((1 + r), t);
+    const interest = total - p;
 
-    resVolume.textContent = totalTokens.toLocaleString() + ' Tokens';
-    resCost.textContent = '$' + cost.toLocaleString(undefined, {minimumFractionDigits: 4, maximumFractionDigits: 4});
+    resTotal.textContent = '$' + total.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+    resInterest.textContent = '$' + interest.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
   }
 
   if (btnCalc) btnCalc.addEventListener('click', compute);
-  [inpTokens, outTokens, modelRate].forEach(el => {
+  [pInp, rInp, yInp].forEach(el => {
     if (el) el.addEventListener('input', compute);
   });
   compute();
 })();
 </script>
 """
-        explanation = "This interactive tool calculates estimated inference expenditure based on combined prompt and completion token volumes."
-        keywords = "calculator, utility, ai tokens, cost estimator"
+        explanation = "This interactive financial calculator evaluates compounding asset growth over a specified timeframe."
+        keywords = "calculator, finance, investment, growth, compound interest"
 
     return {"body": body, "script": script, "keywords": keywords, "explanation": explanation}
 
@@ -285,128 +279,5 @@ def assemble_and_save_tool(tool_entry, body_html, script_html):
         "<!-- {{TOOL_CANONICAL_URL}} -->": canonical_url,
         "<!-- {{JSON_LD_SCHEMA}} -->": f'<script type="application/ld+json">{{"@context":"[https://schema.org](https://schema.org)","@type":"WebApplication","name":"{tool_entry["title"]}","url":"{canonical_url}"}}</script>',
         "<!-- {{VERSION_SWITCHER}} -->": '<span class="text-xs text-slate-500">v1.0</span>',
-        "<!-- {{TOOL_CATEGORY}} -->": tool_entry.get("category", "Utility"),
-        "<!-- {{TOOL_UPDATED_DATE}} -->": datetime.now(timezone.utc).strftime("%Y-%m-%d"),
-        "<!-- {{TOOL_VERIFICATION_STATUS}} -->": "Active",
-        "<!-- {{TOOL_HEADER_SUBTITLE}} -->": tool_entry["description"],
-        "<!-- {{TOOL_BODY}} -->": body_html,
-        "<!-- {{TOOL_EXPLANATION}} -->": tool_entry.get("explanation", ""),
-        "<!-- {{TOOL_SCRIPT}} -->": script_html,
-        "<!-- {{TOOL_SLUG}} -->": slug,
-    }
-
-    final_html = template
-    for placeholder, val in replacements.items():
-        final_html = final_html.replace(placeholder, str(val))
-
-    with open(os.path.join(tool_dir, "index.html"), "w", encoding="utf-8") as f:
-        f.write(final_html)
-
-def rebuild_root_directory(registry):
-    Log.step("STEP E", "Rebuilding central Root Directory Index with Native Dark UI...")
-    tools = registry.get("tools", [])
-    cards = []
-    for t in tools:
-        cards.append(f'''
-        <div style="background-color: #0f172a; border: 1px solid #1e293b; border-radius: 0.75rem; padding: 1.25rem; transition: border-color 0.2s;">
-            <a href="./{t["slug"]}/" style="color: #60a5fa; font-weight: 600; font-size: 1.1rem; text-decoration: none;">{t["title"]}</a>
-            <p style="color: #94a3b8; font-size: 0.875rem; margin-top: 0.35rem; line-height: 1.4;">{t["description"]}</p>
-            <div style="margin-top: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
-                <span style="font-size: 0.7rem; background-color: #1e293b; color: #38bdf8; padding: 0.15rem 0.5rem; border-radius: 9999px;">{t.get("category", "Utility")}</span>
-                <span style="font-size: 0.7rem; color: #64748b;">v{t.get("version", "1.0")}</span>
-            </div>
-        </div>
-        ''')
-
-    root_html = f"""<!DOCTYPE html>
-<html lang="en" style="height: 100%; background-color: #030712; color: #f8fafc;">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{SITE_NAME}</title>
-    <style>
-        body {{
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background-color: #030712;
-            color: #f8fafc;
-            margin: 0;
-            padding: 3rem 1.5rem;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-        }}
-        .container {{
-            max-width: 48rem;
-            width: 100%;
-        }}
-        h1 {{
-            font-size: 2.25rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-            letter-spacing: -0.025em;
-        }}
-        .subtitle {{
-            color: #94a3b8;
-            font-size: 0.95rem;
-            margin-bottom: 2.5rem;
-        }}
-        .grid {{
-            display: grid;
-            gap: 1rem;
-        }}
-        footer {{
-            margin-top: 4rem;
-            color: #64748b;
-            font-size: 0.8rem;
-            border-top: 1px solid #1e293b;
-            width: 100%;
-            max-width: 48rem;
-            padding-top: 1.5rem;
-            display: flex;
-            justify-content: space-between;
-        }}
-    </style>
-</head>
-<body>
-  <div class="container">
-    <h1>{SITE_NAME}</h1>
-    <p class="subtitle">Autonomous Self-Coding Micro-Tool Network — Discovering & Deploying Daily</p>
-    <div class="grid">
-      {"".join(cards)}
-    </div>
-    <footer>
-      <span>Zero Server Cost · Autonomous System</span>
-      <span>&copy; 2026 {SITE_NAME}</span>
-    </footer>
-  </div>
-</body>
-</html>"""
-    with open(ROOT_INDEX_FILE, "w", encoding="utf-8") as f:
-        f.write(root_html)
-
-def main():
-    registry = load_registry()
-    trend_data = step_b_trend_discovery(registry)
-    
-    if not any(t["slug"] == trend_data["slug"] for t in registry.get("tools", [])):
-        tool_code = generate_tool_code(trend_data)
-        tool_entry = {
-            "slug": trend_data["slug"],
-            "title": trend_data["title"],
-            "description": trend_data["description"],
-            "category": trend_data["category"],
-            "version": "1.0",
-            "last_updated": datetime.now(timezone.utc).strftime("%Y-%m-%d"),
-            "status": "Active"
-        }
-        assemble_and_save_tool(tool_entry, tool_code["body"], tool_code["script"])
-        registry.setdefault("tools", []).insert(0, tool_entry)
-        registry["last_run"] = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
-        save_registry(registry)
-        
-    rebuild_root_directory(registry)
-    Log.success("Autonomous pipeline run completed successfully.")
-
-if __name__ == "__main__":
-    main()
+        "<!-- {{TOOL_CATEGORY}} -->": tool_entry.get("category", "Finance"),
+        "<!-- {{TOOL_UPDATED_DATE
