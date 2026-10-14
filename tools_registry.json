@@ -1,0 +1,14 @@
+{
+  "tools": [
+    {
+      "slug": "mortgage-refinance-break-even-calculator",
+      "title": "Mortgage Refinance Break-Even Calculator",
+      "description": "Compare current loan against new interest rates and closing costs",
+      "category": "Finance",
+      "version": "1.0",
+      "last_updated": "2026-10-14",
+      "status": "Active"
+    }
+  ],
+  "last_run": null
+}
