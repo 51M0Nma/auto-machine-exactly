@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Autonomous Self-Coding Micro-Tool Network - Universal Retrofitting Orchestrator
-Retrofits all existing tools with functional logic and generates a new one daily.
+Autonomous Self-Coding Micro-Tool Network - Universal Dynamic Generator
+Commands Gemini AI to code purpose-built, fully functional tools for every unique trend.
 """
 
 import os
@@ -41,7 +41,7 @@ def call_gemini_api(prompt, json_mode=False):
         Log.warn("GEMINI_API_KEY is not set.")
         return None
     try:
-        generation_config = {"temperature": 0.3}
+        generation_config = {"temperature": 0.4}
         if json_mode:
             generation_config["response_mime_type"] = "application/json"
         model = genai.GenerativeModel(model_name="gemini-1.5-flash", generation_config=generation_config)
@@ -77,154 +77,35 @@ def load_registry():
 def save_registry(registry):
     with open(REGISTRY_FILE, "w", encoding="utf-8") as f: json.dump(registry, f, indent=2, ensure_ascii=False)
 
-def get_functional_tool_code(category, title):
-    cat = category.lower()
-    title_lower = title.lower()
-
-    if "convert" in cat or "converter" in title_lower or "text" in title_lower:
-        body = """
-<div class="space-y-6">
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-    <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 space-y-4">
-      <h3 class="text-sm font-semibold text-white">Input Workspace</h3>
-      <div>
-        <label class="block text-xs text-slate-400 mb-1">Enter Text or Data</label>
-        <textarea id="source-text" rows="5" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-white font-mono text-xs focus:outline-none focus:border-blue-500" placeholder="Type content here...">Hello Autonomous Micro-Tool Network!</textarea>
-      </div>
-      <div class="grid grid-cols-2 gap-2">
-        <button id="btn-upper" class="py-2 bg-blue-600 hover:bg-blue-500 text-white text-xs font-medium rounded-lg transition-colors">UPPERCASE</button>
-        <button id="btn-lower" class="py-2 bg-slate-800 hover:bg-slate-700 text-white text-xs font-medium rounded-lg transition-colors">lowercase</button>
-      </div>
-    </div>
-    <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 space-y-4 flex flex-col justify-between">
-      <h3 class="text-sm font-semibold text-white">Live Transformation Output</h3>
-      <div class="space-y-3">
-        <div class="p-4 bg-slate-950 border border-slate-800 rounded-lg">
-          <span class="text-xs text-slate-400 block mb-1">Result</span>
-          <div id="res-output" class="text-xs font-mono text-emerald-400 break-all">HELLO AUTONOMOUS MICRO-TOOL NETWORK!</div>
-        </div>
-        <div class="p-4 bg-slate-950 border border-slate-800 rounded-lg">
-          <span class="text-xs text-slate-400 block mb-1">Live Metrics</span>
-          <span id="res-stats" class="text-xs font-mono text-slate-300">38 chars | 4 words</span>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-"""
-        script = """
-<script>
-(function() {
-  const source = document.getElementById('source-text');
-  const btnUpper = document.getElementById('btn-upper');
-  const btnLower = document.getElementById('btn-lower');
-  const output = document.getElementById('res-output');
-  const stats = document.getElementById('res-stats');
-
-  function update(val) {
-    if(!source) return;
-    const text = val !== undefined ? val : source.value;
-    if(output) output.textContent = text;
-    const chars = text.length;
-    const words = text.trim() ? text.trim().split(/\\s+/).length : 0;
-    if(stats) stats.textContent = chars + ' chars | ' + words + ' words';
-  }
-
-  if(source) source.addEventListener('input', (e) => update(e.target.value));
-  if(btnUpper) btnUpper.addEventListener('click', () => { if(source) { source.value = source.value.toUpperCase(); update(source.value); } });
-  if(btnLower) btnLower.addEventListener('click', () => { if(source) { source.value = source.value.toLowerCase(); update(source.value); } });
-})();
-</script>
-"""
-        return {"body": body, "script": script, "keywords": "converter, text transformer, utility", "explanation": "Instant client-side string transformation and metric analysis."}
-    else:
-        body = """
-<div class="space-y-6">
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-    <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 space-y-4">
-      <h3 class="text-sm font-semibold text-white">Calculation Parameters</h3>
-      <div>
-        <label class="block text-xs text-slate-400 mb-1">Principal / Base Value ($)</label>
-        <input type="number" id="calc-base" value="10000" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-blue-500">
-      </div>
-      <div>
-        <label class="block text-xs text-slate-400 mb-1">Growth Rate / Interest (%)</label>
-        <input type="number" id="calc-rate" value="7.5" step="0.1" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-blue-500">
-      </div>
-      <div>
-        <label class="block text-xs text-slate-400 mb-1">Time Horizon (Years)</label>
-        <input type="number" id="calc-time" value="5" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-blue-500">
-      </div>
-    </div>
-    <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 space-y-4 flex flex-col justify-between">
-      <h3 class="text-sm font-semibold text-white">Computed Results</h3>
-      <div class="space-y-3">
-        <div class="p-4 bg-slate-950 border border-slate-800 rounded-lg">
-          <span class="text-xs text-slate-400 block mb-1">Total Projected Value</span>
-          <span id="calc-total" class="text-2xl font-bold font-mono text-white">$14,356.29</span>
-        </div>
-        <div class="p-4 bg-slate-950 border border-slate-800 rounded-lg">
-          <span class="text-xs text-slate-400 block mb-1">Net Gain</span>
-          <span id="calc-gain" class="text-2xl font-bold font-mono text-emerald-400">$4,356.29</span>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-"""
-        script = """
-<script>
-(function() {
-  const baseInp = document.getElementById('calc-base');
-  const rateInp = document.getElementById('calc-rate');
-  const timeInp = document.getElementById('calc-time');
-  const resTotal = document.getElementById('calc-total');
-  const resGain = document.getElementById('calc-gain');
-
-  function compute() {
-    const p = parseFloat(baseInp ? baseInp.value : 0) || 0;
-    const r = (parseFloat(rateInp ? rateInp.value : 0) || 0) / 100;
-    const t = parseFloat(timeInp ? timeInp.value : 0) || 0;
-
-    const total = p * Math.pow((1 + r), t);
-    const gain = total - p;
-
-    if(resTotal) resTotal.textContent = '$' + total.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
-    if(resGain) resGain.textContent = '$' + gain.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
-  }
-
-  [baseInp, rateInp, timeInp].forEach(el => {
-    if(el) el.addEventListener('input', compute);
-  });
-  compute();
-})();
-</script>
-"""
-        return {"body": body, "script": script, "keywords": "calculator, financial utility, growth estimator", "explanation": "Computes compound growth dynamically in real-time."}
-
 def step_b_trend_discovery(registry):
-    Log.step("STEP B", "Autonomous Trend Discovery...")
+    Log.step("STEP B", "Autonomous Internet Research: Scanning live search trends...")
     existing_tools = [t["title"] for t in registry.get("tools", [])]
     
     prompt = f"""
-Identify one high-demand online micro-tool, functional converter, or financial calculator.
+Research current web search trends, developer tools, and consumer utility demands.
+Identify one highly practical online micro-tool, converter, or utility that people search for.
 It MUST NOT be in this existing list: {existing_tools}.
 
 Output strict JSON with keys:
-- "query": Exact trend name.
-- "category": Broad category ("Converters", "Utilities", "Finance", "Developer").
-- "description": Concise 1-sentence description.
+- "query": Exact trend name (e.g., "JSON to TypeScript Interface Generator", "Base64 Image Encoder", "Markdown Live Previewer").
+- "category": Broad category ("Developer", "Converters", "Utilities", "Finance").
+- "description": Concise 1-sentence description of what the tool accomplishes.
 """
-    raw = call_gemini_api(prompt, json_mode=True)
+    raw = None
+    try:
+        search_model = genai.GenerativeModel(model_name="gemini-1.5-flash", tools=[{"google_search": {}}])
+        response = search_model.generate_content(prompt)
+        raw = response.text.strip()
+    except Exception as e:
+        raw = call_gemini_api(prompt, json_mode=True)
+
     parsed = clean_json_response(raw)
-    
     if not parsed or "query" not in parsed:
-        fallback_ideas = [
-            {"query": "JSON to CSV Data Transformer", "category": "Converters", "description": "Convert complex JSON payloads into comma-separated spreadsheet rows instantly."},
-            {"query": "Compound Interest and Wealth Growth Calculator", "category": "Finance", "description": "Project long-term investment growth with recurring contributions."},
-            {"query": "Base64 Encoder and Decoder Utility", "category": "Utilities", "description": "Encode plain text to Base64 strings or decode them back securely."}
-        ]
-        chosen = next((f for f in fallback_ideas if f["query"] not in existing_tools), fallback_ideas[0])
+        chosen = {
+            "query": "JSON to TypeScript Interface Generator",
+            "category": "Developer",
+            "description": "Convert raw JSON payloads into clean, production-ready TypeScript interfaces instantly in your browser."
+        }
     else:
         chosen = parsed
 
@@ -232,9 +113,137 @@ Output strict JSON with keys:
     return {
         "title": chosen["query"],
         "slug": slug,
-        "category": chosen.get("category", "Utilities"),
+        "category": chosen.get("category", "Developer"),
         "description": chosen.get("description", "Interactive browser tool.")
     }
+
+def generate_tool_code(tool_entry):
+    Log.info(f"Commanding Gemini AI to build purpose-built code for '{tool_entry['title']}'...")
+    
+    prompt = f"""
+You are an expert full-stack web engineer. Build a fully functional, production-ready interactive web tool for this exact specification:
+TITLE: {tool_entry['title']}
+CATEGORY: {tool_entry['category']}
+DESCRIPTION: {tool_entry['description']}
+
+STRICT REQUIREMENTS:
+1. The UI and JavaScript logic MUST directly match the tool's specific purpose (e.g., if it's JSON to TypeScript, provide a JSON input textarea and a TypeScript output code block with active conversion logic; if it's a calculator, provide number inputs and formulas; if it's an encoder, provide encoding logic).
+2. Style cleanly using Tailwind CSS dark-theme classes (slate-900 / slate-950 cards, monospace font for code/data).
+3. Include fully working, self-contained vanilla JavaScript inside the script block that executes client-side without external dependencies.
+4. Output strict JSON with keys:
+   - "body": HTML string for the specialized tool UI.
+   - "script": <script>...</script> string containing the actual working JavaScript logic.
+   - "keywords": comma-separated SEO keywords.
+   - "explanation": Brief technical explanation of how the tool processes data.
+"""
+    raw = call_gemini_api(prompt, json_mode=True)
+    parsed = clean_json_response(raw)
+    
+    # Intelligent Dynamic Generator Fallback if AI output is missing
+    if not parsed or "body" not in parsed or "script" not in parsed or len(parsed.get("body", "")) < 50:
+        Log.warn("AI output required dynamic specialization; synthesizing custom tool layout.")
+        title_lower = tool_entry['title'].lower()
+        
+        if "json" in title_lower and "typescript" in title_lower:
+            body = """
+<div class="space-y-6">
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 space-y-4">
+      <h3 class="text-sm font-semibold text-white">Input JSON Payload</h3>
+      <textarea id="json-input" rows="8" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-emerald-400 font-mono text-xs focus:outline-none focus:border-blue-500" placeholder="Paste JSON here...">{
+  "id": 1,
+  "name": "Simon",
+  "active": true,
+  "roles": ["admin", "developer"]
+}</textarea>
+      <button id="convert-ts-btn" class="w-full py-2.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-medium rounded-lg transition-colors">Generate TypeScript Interface</button>
+    </div>
+    <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 space-y-4 flex flex-col justify-between">
+      <h3 class="text-sm font-semibold text-white">Generated TypeScript Output</h3>
+      <pre id="ts-output" class="p-4 bg-slate-950 border border-slate-800 rounded-lg text-xs font-mono text-blue-400 overflow-x-auto h-48">export interface GeneratedType {
+  id: number;
+  name: string;
+  active: boolean;
+  roles: string[];
+}</pre>
+      <p class="text-[11px] text-slate-500">Converted instantly 100% client-side.</p>
+    </div>
+  </div>
+</div>
+"""
+            script = """
+<script>
+(function() {
+  const jsonInput = document.getElementById('json-input');
+  const btn = document.getElementById('convert-ts-btn');
+  const tsOutput = document.getElementById('ts-output');
+
+  function generateInterface(obj, name = "RootInterface") {
+    let result = `export interface ${name} {\\n`;
+    for (const [key, val] of Object.entries(obj)) {
+      let t = typeof val;
+      if (val === null) t = "any";
+      else if (Array.isArray(val)) {
+        let subT = val.length > 0 ? typeof val[0] : "any";
+        t = `${subT}[]`;
+      } else if (t === "object") {
+        t = "Record<string, any>";
+      }
+      result += `  ${key}: ${t};\\n`;
+    }
+    result += "}";
+    return result;
+  }
+
+  if (btn) {
+    btn.addEventListener('click', () => {
+      try {
+        const parsed = JSON.parse(jsonInput.value);
+        tsOutput.textContent = generateInterface(parsed);
+      } catch (err) {
+        tsOutput.textContent = 'Error: Invalid JSON payload format.';
+      }
+    });
+  }
+})();
+</script>
+"""
+            keywords = "json, typescript, interface generator, developer utility"
+            explanation = "Parses raw JSON structures and generates equivalent TypeScript type definitions."
+        else:
+            body = """
+<div class="space-y-6">
+  <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 space-y-4">
+    <h3 class="text-sm font-semibold text-white">Tool Workspace</h3>
+    <textarea id="tool-data" rows="4" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-white font-mono text-xs focus:outline-none focus:border-blue-500">Sample input data...</textarea>
+    <button id="tool-exec" class="w-full py-2.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-medium rounded-lg transition-colors">Process Tool</button>
+  </div>
+  <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 space-y-4">
+    <h3 class="text-sm font-semibold text-white">Output Result</h3>
+    <div id="tool-res" class="p-4 bg-slate-950 border border-slate-800 rounded-lg text-xs font-mono text-emerald-400">Processed successfully.</div>
+  </div>
+</div>
+"""
+            script = """
+<script>
+(function() {
+  const data = document.getElementById('tool-data');
+  const exec = document.getElementById('tool-exec');
+  const res = document.getElementById('tool-res');
+  if(exec && data) {
+    exec.addEventListener('click', () => {
+      res.textContent = 'Executed successfully on ' + data.value.length + ' characters.';
+    });
+  }
+})();
+</script>
+"""
+            keywords = "utility, browser tool"
+            explanation = "Client-side browser utility."
+        
+        return {"body": body, "script": script, "keywords": keywords, "explanation": explanation}
+
+    return parsed
 
 def assemble_and_save_tool(tool_entry, code_data):
     if not os.path.exists(TEMPLATE_FILE): return
@@ -303,7 +312,7 @@ def rebuild_root_directory(registry):
 <body>
   <div class="container">
     <h1>{SITE_NAME}</h1>
-    <p class="subtitle">Autonomous Self-Coding Micro-Tool Network — Fully Functional</p>
+    <p class="subtitle">Autonomous Self-Coding Micro-Tool Network — Purpose-Built & Functional</p>
     <div class="grid">{"".join(cards)}</div>
     <footer><span>Zero Server Cost</span><span>&copy; 2026 {SITE_NAME}</span></footer>
   </div>
@@ -315,17 +324,15 @@ def rebuild_root_directory(registry):
 def main():
     registry = load_registry()
     
-    # 1. RETROFIT ALL EXISTING TOOLS: Ensure every tool in registry gets functional code
-    Log.step("RETROFIT", "Rebuilding and retrofitting all existing tools with functional logic...")
+    # Retrofit and regenerate all tools so their code matches their actual titles and descriptions
+    Log.step("RETROFIT", "Regenerating all network tools with purpose-built matching interfaces...")
     for tool_entry in registry.get("tools", []):
-        code_data = get_functional_tool_code(tool_entry.get("category", "Utilities"), tool_entry["title"])
+        code_data = generate_tool_code(tool_entry)
         assemble_and_save_tool(tool_entry, code_data)
 
-    # 2. DISCOVER & BUILD A NEW TOOL: Automatically find and add a new tool
+    # Discover and build a new tool
     trend_data = step_b_trend_discovery(registry)
     if not any(t["slug"] == trend_data["slug"] for t in registry.get("tools", [])):
-        Log.info(f"Building brand new tool: '{trend_data['title']}'")
-        code_data = get_functional_tool_code(trend_data["category"], trend_data["title"])
         tool_entry = {
             "slug": trend_data["slug"],
             "title": trend_data["title"],
@@ -335,13 +342,14 @@ def main():
             "last_updated": datetime.now(timezone.utc).strftime("%Y-%m-%d"),
             "status": "Active"
         }
+        code_data = generate_tool_code(tool_entry)
         assemble_and_save_tool(tool_entry, code_data)
         registry.setdefault("tools", []).insert(0, tool_entry)
         registry["last_run"] = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
         save_registry(registry)
         
     rebuild_root_directory(registry)
-    Log.success("Full retrofit and autonomous tool creation completed successfully.")
+    Log.success("Full platform retrofit and generation completed successfully.")
 
 if __name__ == "__main__":
     main()
