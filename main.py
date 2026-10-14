@@ -120,17 +120,88 @@ DESCRIPTION: {trend_data.get('description', '')}
 
 Requirements:
 1. Pure client-side vanilla JavaScript and Tailwind CSS styling.
-2. Clean card-based responsive dark theme layout.
+2. Include interactive input fields, number inputs, or sliders so users can calculate live values.
 3. Output strict JSON with keys: 'body', 'script', 'keywords', 'explanation'.
 """
     raw_res = call_gemini_api(prompt, json_mode=True)
     parsed = clean_json_response(raw_res)
-    if not parsed or "body" not in parsed:
+    
+    # Robust interactive calculator fallback if AI returns concise body
+    if not parsed or "body" not in parsed or "Interactive operational calculator ready" in parsed.get("body", ""):
         return {
-            "body": '<div class="p-6 bg-slate-900 border border-slate-800 rounded-xl text-white"><h3 class="font-semibold text-base mb-2">Calculator Tool</h3><p class="text-xs text-slate-400">Interactive operational calculator ready.</p></div>',
-            "script": '<script>(function(){ console.log("Tool initialized"); })();</script>',
-            "keywords": "calculator, utility",
-            "explanation": "Standard calculation utility."
+            "body": """
+<div class="space-y-6">
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 space-y-4">
+      <h3 class="text-sm font-semibold text-white">Input Parameters</h3>
+      <div>
+        <label class="block text-xs text-slate-400 mb-1">Primary Value / Amount ($)</label>
+        <input type="number" id="inp-value" value="100000" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-blue-500">
+      </div>
+      <div>
+        <label class="block text-xs text-slate-400 mb-1">Interest Rate / Fee (%)</label>
+        <input type="number" id="inp-rate" value="5.5" step="0.1" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-blue-500">
+      </div>
+      <div>
+        <label class="block text-xs text-slate-400 mb-1">Duration (Years)</label>
+        <input type="number" id="inp-years" value="10" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-blue-500">
+      </div>
+      <button id="btn-calc" class="w-full py-2 bg-blue-600 hover:bg-blue-500 text-white text-xs font-medium rounded-lg transition-colors">Calculate Now</button>
+    </div>
+    <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 space-y-4 flex flex-col justify-between">
+      <h3 class="text-sm font-semibold text-white">Calculation Results</h3>
+      <div class="space-y-3">
+        <div class="p-4 bg-slate-950 border border-slate-800/80 rounded-lg">
+          <span class="text-xs text-slate-400 block mb-1">Estimated Periodic Cost</span>
+          <span id="res-periodic" class="text-2xl font-bold font-mono text-white">$1,085.26</span>
+        </div>
+        <div class="p-4 bg-slate-950 border border-slate-800/80 rounded-lg">
+          <span class="text-xs text-slate-400 block mb-1">Total Lifetime Amount</span>
+          <span id="res-total" class="text-2xl font-bold font-mono text-emerald-400">$130,231.20</span>
+        </div>
+      </div>
+      <p class="text-[11px] text-slate-500">Computed instantly in your browser.</p>
+    </div>
+  </div>
+</div>
+""",
+            "script": """
+<script>
+(function() {
+  const valInp = document.getElementById('inp-value');
+  const rateInp = document.getElementById('inp-rate');
+  const yearsInp = document.getElementById('inp-years');
+  const btnCalc = document.getElementById('btn-calc');
+  const resPeriodic = document.getElementById('res-periodic');
+  const resTotal = document.getElementById('res-total');
+
+  function compute() {
+    const p = parseFloat(valInp.value) || 0;
+    const r = (parseFloat(rateInp.value) || 0) / 100 / 12;
+    const n = (parseFloat(yearsInp.value) || 0) * 12;
+
+    let periodic = 0;
+    if (r > 0 && n > 0) {
+      periodic = (p * r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
+    } else if (n > 0) {
+      periodic = p / n;
+    }
+
+    const total = periodic * n;
+    resPeriodic.textContent = '$' + periodic.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+    resTotal.textContent = '$' + total.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+  }
+
+  if (btnCalc) btnCalc.addEventListener('click', compute);
+  [valInp, rateInp, yearsInp].forEach(el => {
+    if (el) el.addEventListener('input', compute);
+  });
+  compute();
+})();
+</script>
+""",
+            "keywords": "calculator, utility, finance, estimator",
+            "explanation": "This interactive tool computes financial projections instantly using compound interest formulas."
         }
     return parsed
 
