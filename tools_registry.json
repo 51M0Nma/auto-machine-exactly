@@ -1,6 +1,15 @@
 {
   "tools": [
     {
+      "slug": "client-side-pdf-to-image-converter",
+      "title": "Client-Side PDF to Image Converter",
+      "description": "Convert PDF document pages into high-resolution images entirely in your browser.",
+      "category": "Converters",
+      "version": "1.0",
+      "last_updated": "2026-10-14",
+      "status": "Active"
+    },
+    {
       "slug": "heic-to-jpg-image-converter",
       "title": "HEIC to JPG Image Converter",
       "description": "Convert Apple HEIC photos into standard JPG format instantly in your browser.",
@@ -55,5 +64,5 @@
       "status": "Active"
     }
   ],
-  "last_run": "2026-10-14 13:45:49"
+  "last_run": "2026-10-14 16:07:26"
 }
