@@ -54,7 +54,7 @@ def call_gemini_api(prompt, system_instruction=None, json_mode=False, max_retrie
         Log.warn("GEMINI_API_KEY is not set. Using robust fallback generation.")
         return None
 
-    model_name = "gemini-1.5-flash""
+    model_name = "gemini-1.5-flash"
     url = f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent?key={GEMINI_API_KEY}"
 
     payload = {
