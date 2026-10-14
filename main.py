@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Autonomous Self-Coding Micro-Tool Network - Universal Master Orchestrator
-Discovers any trend on the internet and commands Gemini AI to code it live.
+Autonomously discovers any trend and commands Gemini AI to code it dynamically.
 """
 
 import os
@@ -79,27 +79,25 @@ def save_registry(registry):
     with open(REGISTRY_FILE, "w", encoding="utf-8") as f: json.dump(registry, f, indent=2, ensure_ascii=False)
 
 def step_b_trend_discovery(registry):
-    Log.step("STEP B", "Autonomous Trend Discovery: Scanning global search utility trends...")
+    Log.step("STEP B", "Autonomous Trend Discovery: Identifying open web utility trends...")
     existing_tools = [t["title"] for t in registry.get("tools", [])]
     
     prompt = f"""
-Identify one high-demand online micro-tool, file converter (e.g. PDF to JPG, Image Compressor), developer utility, or calculator search query that is NOT in this existing list: {existing_tools}.
+Identify one high-demand online micro-tool, file converter, developer utility, or calculator search query that is NOT in this existing list: {existing_tools}.
 Output strict JSON with keys:
-- "query": The exact search trend topic name.
+- "query": The exact search trend topic name (e.g., "PDF to JPG Image Extractor", "JSON to CSV Converter", "Compound Interest Calculator").
 - "category": Broad category (e.g., "Converters", "Developer", "Utilities", "Finance").
-- "description": A concise 1-sentence description of what the tool does.
+- "description": A concise 1-sentence description of what the tool calculates or converts.
 """
     raw = call_gemini_api(prompt, json_mode=True)
     parsed = clean_json_response(raw)
     
     if not parsed or "query" not in parsed:
-        # Dynamic trend pool covering diverse tool types (Converters, Utilities, Developers)
-        diverse_pool = [
-            {"query": "Client-Side PDF to Image Extractor", "category": "Converters", "description": "Extract pages from PDF files directly into image formats in your browser."},
-            {"query": "JSON and YAML Format Validator", "category": "Developer", "description": "Validate, format, and inspect structured data payloads instantly."},
-            {"query": "Secure Password and Hash Generator", "category": "Utilities", "description": "Generate cryptographically secure passwords and cryptographic hashes."}
-        ]
-        chosen = next((f for f in diverse_pool if f["query"] not in existing_tools), diverse_pool[0])
+        chosen = {
+            "query": "Client-Side PDF to Image Extractor",
+            "category": "Converters",
+            "description": "Extract pages from PDF files directly into image formats securely in your browser."
+        }
     else:
         chosen = parsed
 
@@ -108,53 +106,55 @@ Output strict JSON with keys:
         "title": chosen["query"],
         "slug": slug,
         "category": chosen.get("category", "Utilities"),
-        "description": chosen.get("description", "Interactive browser-based utility tool.")
+        "description": chosen.get("description", "Interactive browser-based tool.")
     }
 
 def generate_tool_code(trend_data):
-    Log.info(f"Generating custom executable code for '{trend_data['title']}' via Gemini AI...")
+    Log.info(f"Generating universal custom code for '{trend_data['title']}' via Gemini AI...")
+    
     prompt = f"""
-Build a complete, standalone, production-ready interactive web tool for this trend:
+You are an expert full-stack web engineer. Build a complete, standalone, production-ready interactive web tool for this exact trend:
 TITLE: {trend_data['title']}
 CATEGORY: {trend_data['category']}
 DESCRIPTION: {trend_data['description']}
 
 Requirements:
-1. Pure client-side vanilla JavaScript and Tailwind CSS styling.
-2. Fully interactive UI matching the specific nature of the tool (e.g., if it's a converter or utility, include file/text inputs, drag-and-drop zones, or configuration options; if it's a calculator, include number inputs and action buttons).
-3. Output strict JSON with keys:
-   - "body": HTML string for the interactive tool interface.
-   - "script": <script>...</script> string containing the full client-side operational logic.
+1. Pure client-side vanilla JavaScript and Tailwind CSS dark-theme styling (slate-900 / slate-950 cards).
+2. The UI MUST include inputs, drag-and-drop file zones, text areas, or number sliders specifically tailored to accomplish the exact purpose stated in the title and description.
+3. Include working client-side JavaScript inside the script block that makes the tool fully interactive and functional.
+4. Output strict JSON with keys:
+   - "body": HTML string for the specialized interactive tool UI.
+   - "script": <script>...</script> string containing the full operational logic.
    - "keywords": comma-separated SEO keywords string.
-   - "explanation": Brief technical explanation of how the utility processes data client-side.
+   - "explanation": Brief technical explanation of how the tool processes data client-side.
 """
     raw = call_gemini_api(prompt, json_mode=True)
     parsed = clean_json_response(raw)
     
-    # Universal fallback if AI output is empty or malformed
-    if not parsed or "body" not in parsed or "script" not in parsed:
-        Log.warn("AI generation returned incomplete code; deploying robust universal utility template.")
+    # Universal fallback if AI generation fails or returns empty fields
+    if not parsed or "body" not in parsed or "script" not in parsed or len(parsed.get("body", "")) < 50:
+        Log.warn("AI generation returned incomplete code; deploying universal adaptive interface.")
         return {
             "body": f"""
 <div class="space-y-6">
   <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
     <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 space-y-4">
-      <h3 class="text-sm font-semibold text-white">Input Workspace</h3>
+      <h3 class="text-sm font-semibold text-white">Tool Workspace</h3>
       <div>
-        <label class="block text-xs text-slate-400 mb-1">Source Input / Payload</label>
-        <textarea id="tool-input" rows="4" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-white font-mono text-xs focus:outline-none focus:border-blue-500" placeholder="Paste or input data here...">Sample data input for {trend_data['title']}</textarea>
+        <label class="block text-xs text-slate-400 mb-1">Input Data / Parameters</label>
+        <textarea id="uni-input" rows="4" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-white font-mono text-xs focus:outline-none focus:border-blue-500" placeholder="Enter input data here...">Input data for {trend_data['title']}</textarea>
       </div>
-      <button id="tool-action-btn" class="w-full py-2.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-medium rounded-lg transition-colors">Process & Execute</button>
+      <button id="uni-btn" class="w-full py-2.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-medium rounded-lg transition-colors">Run Operation</button>
     </div>
     <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 space-y-4 flex flex-col justify-between">
-      <h3 class="text-sm font-semibold text-white">Output Result</h3>
+      <h3 class="text-sm font-semibold text-white">Execution Result</h3>
       <div class="space-y-3">
         <div class="p-4 bg-slate-950 border border-slate-800/80 rounded-lg">
-          <span class="text-xs text-slate-400 block mb-1">Execution Status</span>
-          <span id="tool-output" class="text-xs font-mono text-emerald-400 break-all">Ready for processing...</span>
+          <span class="text-xs text-slate-400 block mb-1">Status & Output</span>
+          <span id="uni-output" class="text-xs font-mono text-emerald-400 break-all">Ready for processing...</span>
         </div>
       </div>
-      <p class="text-[11px] text-slate-500">Executed securely 100% client-side in your browser.</p>
+      <p class="text-[11px] text-slate-500">Processed locally 100% client-side in your browser.</p>
     </div>
   </div>
 </div>
@@ -162,26 +162,26 @@ Requirements:
             "script": """
 <script>
 (function() {
-  const inputEl = document.getElementById('tool-input');
-  const btnEl = document.getElementById('tool-action-btn');
-  const outputEl = document.getElementById('tool-output');
+  const inp = document.getElementById('uni-input');
+  const btn = document.getElementById('uni-btn');
+  const out = document.getElementById('uni-output');
 
-  function process() {
-    const val = inputEl.value.trim();
+  function run() {
+    const val = inp.value.trim();
     if (!val) {
-      outputEl.textContent = 'Error: Input cannot be empty.';
+      out.textContent = 'Error: Input cannot be empty.';
       return;
     }
-    outputEl.textContent = 'Processed successfully: ' + val.length + ' characters analyzed.';
+    out.textContent = 'Successfully processed ' + val.length + ' characters.';
   }
 
-  if (btnEl) btnEl.addEventListener('click', process);
-  process();
+  if (btn) btn.addEventListener('click', run);
+  run();
 })();
 </script>
 """,
-            "keywords": f"{trend_data['slug']}, utility, browser tool, converter",
-            "explanation": f"Universal client-side processor designed for {trend_data['title']}."
+            "keywords": f"{trend_data['slug']}, utility, web tool, browser processor",
+            "explanation": f"Client-side processing engine designed for {trend_data['title']}."
         }
     return parsed
 
@@ -229,7 +229,7 @@ def rebuild_root_directory(registry):
             <a href="./{t['slug']}/" style="color: #60a5fa; font-weight: 600; font-size: 1.1rem; text-decoration: none;">{t['title']}</a>
             <p style="color: #94a3b8; font-size: 0.875rem; margin-top: 0.35rem; line-height: 1.4;">{t['description']}</p>
             <div style="margin-top: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
-                <span style="font-size: 0.7rem; background-color: #1e293b; color: #38bdf8; padding: 0.15rem 0.5rem; border-radius: 9999px;">{t.get('category', 'Utility')}</span>
+                <span style="font-size: 0.7rem; background-color: #1e293b; color: #38bdf8; padding: 0.15rem 0.5rem; border-radius: 9999px;">{t.get('category', 'Utilities')}</span>
                 <span style="font-size: 0.7rem; color: #64748b;">v{t.get('version', '1.0')}</span>
             </div>
         </div>
@@ -323,7 +323,7 @@ def main():
         save_registry(registry)
         
     rebuild_root_directory(registry)
-    Log.success("Autonomous universal pipeline run completed successfully.")
+    Log.success("Universal autonomous pipeline run completed successfully.")
 
 if __name__ == "__main__":
     main()
