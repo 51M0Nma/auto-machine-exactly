@@ -7,253 +7,171 @@
   <meta name="description" content="Compare current loan against new interest rates and closing costs" />
   <meta name="keywords" content="" />
   <link rel="canonical" href="https://51m0nma.github.io/auto-machine-exactly/mortgage-refinance-break-even-calculator/" />
-  <meta property="og:title" content="Mortgage Refinance Break-Even Calculator" />
-  <meta property="og:description" content="Compare current loan against new interest rates and closing costs" />
-  <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://51m0nma.github.io/auto-machine-exactly/mortgage-refinance-break-even-calculator/" />
-  <meta name="twitter:card" content="summary_large_image" />
-
-  <!-- Schema.org JSON-LD Structured Data for Rich Search Snippets -->
-  <script type="application/ld+json">{"@context":"[https://schema.org](https://schema.org)","@type":"WebApplication","name":"Mortgage Refinance Break-Even Calculator","url":"https://51m0nma.github.io/auto-machine-exactly/mortgage-refinance-break-even-calculator/"}</script>
-
-  <!-- Google AdSense Header Script (Injected if ADSENSE_PUB_ID is provided) -->
-  
-
-  <!-- Standalone Tailwind CSS Engine -->
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Mortgage Refinance Break-Even Calculator","url":"https://51m0nma.github.io/auto-machine-exactly/mortgage-refinance-break-even-calculator/"}</script>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          colors: {
-            brand: {
-              50: '#eff6ff',
-              500: '#3b82f6',
-              600: '#2563eb',
-              700: '#1d4ed8',
-              900: '#1e3a8a'
-            }
-          },
-          fontFamily: {
-            sans: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
-            mono: ['"JetBrains Mono"', 'ui-monospace', 'monospace']
-          }
-        }
-      }
-    }
-  </script>
-
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-
   <style>
-    /* Tabular figures for exact column alignment */
-    .tabular-nums { font-variant-numeric: tabular-nums; }
-    /* Responsive custom scrollbars */
-    ::-webkit-scrollbar { width: 6px; height: 6px; }
-    ::-webkit-scrollbar-track { background: #090d16; }
-    ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 3px; }
-    ::-webkit-scrollbar-thumb:hover { background: #334155; }
+    body { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; }
+    .font-mono { font-family: 'JetBrains Mono', monospace; }
   </style>
+  
 </head>
-<body class="min-h-full flex flex-col font-sans bg-[#090D16] text-slate-100 selection:bg-blue-600 selection:text-white antialiased">
+<body class="min-h-full flex flex-col bg-[#090D16] text-slate-100 antialiased selection:bg-blue-600 selection:text-white">
 
-  <!-- TOP BAR: Strict 3-zone contract -->
+  <!-- TOP HEADER -->
   <header class="border-b border-slate-800/80 bg-slate-900/60 backdrop-blur-md sticky top-0 z-40">
     <div class="max-w-6xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between gap-4">
-      <!-- Zone 1: Wordmark & Root Directory Link -->
-      <a href="/" class="flex items-center gap-2 text-slate-100 hover:text-white font-semibold text-base tracking-tight shrink-0 transition-colors">
-        <svg class="w-5 h-5 text-blue-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <rect width="18" height="18" x="3" y="3" rx="2"/><path d="m9 8 6 4-6 4Z"/>
-        </svg>
-        <span>OmniTools Network</span>
-      </a>
-
-      <!-- Zone 2: Breadcrumbs & Status -->
-      <nav class="hidden sm:flex items-center gap-2 text-xs text-slate-400 truncate">
-        <a href="/" class="hover:text-slate-200 transition-colors">Home Directory</a>
-        <span class="text-slate-600">/</span>
-        <span class="text-slate-300 font-medium truncate">Mortgage Refinance Break-Even Calculator</span>
-      </nav>
-
-      <!-- Zone 3: Version Switcher & Bug Report Trigger -->
-      <div class="flex items-center gap-3 shrink-0">
+      <div class="flex items-center gap-2 text-white font-semibold text-base">
+        <a href="../" class="flex items-center gap-2 hover:opacity-80 transition-opacity">
+          <svg class="w-5 h-5 text-blue-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="m9 8 6 4-6 4Z"/></svg>
+          <span>OmniTools Network</span>
+        </a>
+      </div>
+      <div class="flex items-center gap-4">
+        <a href="../" class="text-xs text-slate-400 hover:text-white transition-colors">Home Directory</a>
         <span class="text-xs text-slate-500">v1.0</span>
-        <button id="open-report-btn" class="px-2.5 py-1 text-xs font-medium text-slate-400 hover:text-slate-200 bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700/60 rounded-md transition-all flex items-center gap-1.5" title="Report an issue with this tool">
-          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-          </svg>
-          <span class="hidden md:inline">Report Issue</span>
-        </button>
       </div>
     </div>
   </header>
 
-  <!-- ADSENSE TOP BANNER SLOT -->
+  <!-- ADSENSE TOP -->
   
 
-  <!-- MAIN WRAPPER CONTAINER -->
-  <main class="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 py-6 md:py-8">
-    <!-- Header Block -->
-    <div class="mb-6 pb-6 border-b border-slate-800/80">
-      <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-2">
-        <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-white">Mortgage Refinance Break-Even Calculator</h1>
-        <div class="flex items-center gap-3 text-xs text-slate-400">
-          <span>Category: Finance</span>
-          <span class="text-slate-600">·</span>
-          <span>Updated: 2026-10-14</span>
-          <span class="text-slate-600">·</span>
-          <span class="text-emerald-400 font-medium">Active</span>
-        </div>
+  <!-- TOOL HERO SECTION -->
+  <main class="flex-1 max-w-5xl w-full mx-auto px-4 sm:px-6 py-10">
+    <div class="mb-8">
+      <div class="flex items-center gap-2 text-xs text-slate-400 mb-2">
+        <span class="text-blue-400 font-medium">Category: Finance</span>
+        <span>·</span>
+        <span>Updated: 2026-10-14</span>
+        <span>·</span>
+        <span class="text-emerald-400">Active</span>
       </div>
-      <p class="text-slate-400 text-sm max-w-3xl leading-relaxed">Compare current loan against new interest rates and closing costs</p>
+      <h1 class="text-3xl sm:text-4xl font-bold tracking-tight text-white mb-2">
+        Mortgage Refinance Break-Even Calculator
+      </h1>
+      <p class="text-sm text-slate-400 leading-relaxed">
+        Compare current loan against new interest rates and closing costs
+      </p>
     </div>
 
-    <!-- DYNAMIC TOOL INJECTION AREA -->
-    <div class="p-6 bg-slate-900 border border-slate-800 rounded-xl text-white"><h3 class="font-semibold text-base mb-2">Calculator Tool</h3><p class="text-xs text-slate-400">Interactive operational calculator ready.</p></div>
-
-    <!-- TOOL DOCUMENTATION & HOW IT WORKS (High SEO Indexing Value) -->
-    <section class="mt-12 pt-8 border-t border-slate-800/80 prose prose-invert max-w-none">
-      <h2 class="text-lg font-semibold text-white mb-3">Formula & Methodological Standards</h2>
-      <div class="text-sm text-slate-400 leading-relaxed space-y-2">
-        <p></p>
-        <p class="text-xs text-slate-500">Note: All computations run client-side in your web browser. No private figures or inputs are ever transmitted over the network.</p>
+    <!-- MAIN TOOL INTERACTIVE CONTAINER -->
+    <div class="mb-10">
+      
+<div class="space-y-6">
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 space-y-4">
+      <h3 class="text-sm font-semibold text-white">Refinance Parameters</h3>
+      <div>
+        <label class="block text-xs text-slate-400 mb-1">Remaining Loan Balance ($)</label>
+        <input type="number" id="inp-balance" value="300000" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-blue-500">
       </div>
-    </section>
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block text-xs text-slate-400 mb-1">Current Rate (%)</label>
+          <input type="number" id="inp-old-rate" value="6.5" step="0.1" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-blue-500">
+        </div>
+        <div>
+          <label class="block text-xs text-slate-400 mb-1">New Rate (%)</label>
+          <input type="number" id="inp-new-rate" value="5.2" step="0.1" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-blue-500">
+        </div>
+      </div>
+      <div>
+        <label class="block text-xs text-slate-400 mb-1">Total Refinance Closing Costs ($)</label>
+        <input type="number" id="inp-costs" value="4500" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-white font-mono text-sm focus:outline-none focus:border-blue-500">
+      </div>
+      <button id="btn-calc" class="w-full py-2.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-medium rounded-lg transition-colors">Calculate Break-Even</button>
+    </div>
+    <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 space-y-4 flex flex-col justify-between">
+      <h3 class="text-sm font-semibold text-white">Break-Even Analysis</h3>
+      <div class="space-y-3">
+        <div class="p-4 bg-slate-950 border border-slate-800/80 rounded-lg">
+          <span class="text-xs text-slate-400 block mb-1">Monthly Payment Savings</span>
+          <span id="res-savings" class="text-2xl font-bold font-mono text-emerald-400">$235.40</span>
+        </div>
+        <div class="p-4 bg-slate-950 border border-slate-800/80 rounded-lg">
+          <span class="text-xs text-slate-400 block mb-1">Break-Even Point</span>
+          <span id="res-breakeven" class="text-2xl font-bold font-mono text-white">19.1 Months</span>
+        </div>
+      </div>
+      <p class="text-[11px] text-slate-500">Calculated instantly based on closing costs divided by monthly savings.</p>
+    </div>
+  </div>
+</div>
+
+    </div>
+
+    <!-- METHODOLOGY EXPLANATION -->
+    <div class="bg-slate-900/40 border border-slate-800/80 rounded-xl p-6 sm:p-8">
+      <h3 class="text-base font-semibold text-white mb-2">Formula & Methodological Standards</h3>
+      <p class="text-xs text-slate-400 leading-relaxed mb-4">
+        
+      </p>
+      <div class="text-[11px] text-slate-500">
+        Note: All computations run client-side in your web browser. No private figures or inputs are ever transmitted over the network.
+      </div>
+    </div>
   </main>
 
-  <!-- ADSENSE BOTTOM DISPLAY SLOT -->
+  <!-- ADSENSE BOTTOM -->
   
 
-  <!-- GLOBAL FOOTER -->
-  <footer class="border-t border-slate-800/80 bg-slate-950 py-8 px-4 sm:px-6 mt-12 text-xs text-slate-500">
-    <div class="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-      <div class="flex items-center gap-3">
-        <a href="/" class="text-slate-400 hover:text-white transition-colors font-medium">← Browse All Micro-Tools</a>
-        <span>·</span>
-        <span>Hosted 100% statically on Firebase CDN</span>
+  <!-- FOOTER -->
+  <footer class="border-t border-slate-800/80 bg-slate-950 py-8 px-4 sm:px-6 text-xs text-slate-500">
+    <div class="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div>
+        <a href="../" class="hover:text-slate-300 transition-colors">&larr; Browse All Micro-Tools</a>
       </div>
-      <div class="flex items-center gap-4 text-slate-500">
+      <div class="flex items-center gap-3">
         <span>Zero Server Cost</span>
         <span>·</span>
         <span>Autonomous System</span>
         <span>·</span>
-        <span>&copy; <span id="current-year">2026</span> OmniTools Network</span>
+        <span>&copy; 2026 OmniTools Network</span>
       </div>
     </div>
   </footer>
 
-  <!-- SELF-HEALING CLIENT-SIDE ERROR RECORDER & BUG REPORT MODAL -->
-  <div id="bug-report-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-slate-900 border border-slate-700 rounded-xl p-5 max-w-md w-full shadow-2xl">
-      <div class="flex items-center justify-between mb-3">
-        <h3 class="text-base font-semibold text-white">Report Bug / Feedback</h3>
-        <button id="close-report-btn" class="text-slate-400 hover:text-white text-lg leading-none">&times;</button>
-      </div>
-      <p class="text-xs text-slate-400 mb-4">
-        Our autonomous triage engine reviews bug logs nightly and deploys automatic code patches.
-      </p>
-      <form id="bug-report-form" class="space-y-3">
-        <div>
-          <label class="block text-xs font-medium text-slate-300 mb-1">Issue Description</label>
-          <textarea id="bug-description" rows="3" required class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-xs text-slate-200 placeholder-slate-600 focus:outline-none focus:border-blue-500" placeholder="e.g. Calculation returns NaN when interest rate is 0%, or button does not respond..."></textarea>
-        </div>
-        <div>
-          <label class="block text-xs font-medium text-slate-300 mb-1">Expected vs Actual Result (Optional)</label>
-          <input type="text" id="bug-expected" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-xs text-slate-200 placeholder-slate-600 focus:outline-none focus:border-blue-500" placeholder="Expected $500, got $0" />
-        </div>
-        <div id="report-status-msg" class="text-xs hidden"></div>
-        <div class="flex justify-end gap-2 pt-2">
-          <button type="button" id="cancel-report-btn" class="px-3 py-1.5 text-xs text-slate-400 hover:text-white bg-slate-800 rounded-md">Cancel</button>
-          <button type="submit" class="px-3.5 py-1.5 text-xs font-medium text-white bg-blue-600 hover:bg-blue-500 rounded-md transition-colors">Submit to Triage</button>
-        </div>
-      </form>
-    </div>
-  </div>
+  <!-- TOOL EXECUTABLE SCRIPT -->
+  
+<script>
+(function() {
+  const balanceInp = document.getElementById('inp-balance');
+  const oldRateInp = document.getElementById('inp-old-rate');
+  const newRateInp = document.getElementById('inp-new-rate');
+  const costsInp = document.getElementById('inp-costs');
+  const btnCalc = document.getElementById('btn-calc');
+  const resSavings = document.getElementById('res-savings');
+  const resBreakeven = document.getElementById('res-breakeven');
 
-  <!-- CLIENT-SIDE SELF-HEALING TELEMETRY SCRIPT -->
-  <script>
-    (function() {
-      document.getElementById('current-year').textContent = new Date().getFullYear();
-      const TOOL_SLUG = 'mortgage-refinance-break-even-calculator';
+  function compute() {
+    const bal = parseFloat(balanceInp.value) || 0;
+    const oldR = (parseFloat(oldRateInp.value) || 0) / 100 / 12;
+    const newR = (parseFloat(newRateInp.value) || 0) / 100 / 12;
+    const costs = parseFloat(costsInp.value) || 0;
 
-      // Capture runtime JavaScript exceptions
-      window.addEventListener('error', function(event) {
-        logErrorToLedger({
-          type: 'runtime_error',
-          message: event.message,
-          filename: event.filename,
-          lineno: event.lineno,
-          colno: event.colno,
-          stack: event.error ? event.error.stack : null,
-          slug: TOOL_SLUG,
-          timestamp: new Date().toISOString()
-        });
-      });
+    const n = 360; // 30 years
+    let oldPmt = 0, newPmt = 0;
+    if (oldR > 0) oldPmt = (bal * oldR * Math.pow(1 + oldR, n)) / (Math.pow(1 + oldR, n) - 1);
+    if (newR > 0) newPmt = (bal * newR * Math.pow(1 + newR, n)) / (Math.pow(1 + newR, n) - 1);
 
-      // Capture unhandled promise rejections
-      window.addEventListener('unhandledrejection', function(event) {
-        logErrorToLedger({
-          type: 'unhandled_promise',
-          message: event.reason ? (event.reason.message || String(event.reason)) : 'Unhandled rejection',
-          stack: event.reason && event.reason.stack ? event.reason.stack : null,
-          slug: TOOL_SLUG,
-          timestamp: new Date().toISOString()
-        });
-      });
+    const monthlySavings = Math.max(0, oldPmt - newPmt);
+    const months = monthlySavings > 0 ? (costs / monthlySavings) : 0;
 
-      function logErrorToLedger(errPayload) {
-        try {
-          const logs = JSON.parse(localStorage.getItem('microtool_error_ledger') || '[]');
-          logs.push(errPayload);
-          // Keep maximum 30 items
-          if (logs.length > 30) logs.shift();
-          localStorage.setItem('microtool_error_ledger', JSON.stringify(logs));
-        } catch(e) {}
-      }
+    resSavings.textContent = '$' + monthlySavings.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+    resBreakeven.textContent = months > 0 ? months.toFixed(1) + ' Months' : 'N/A';
+  }
 
-      // Bug modal controls
-      const modal = document.getElementById('bug-report-modal');
-      const openBtn = document.getElementById('open-report-btn');
-      const closeBtn = document.getElementById('close-report-btn');
-      const cancelBtn = document.getElementById('cancel-report-btn');
-      const form = document.getElementById('bug-report-form');
-      const statusMsg = document.getElementById('report-status-msg');
+  if (btnCalc) btnCalc.addEventListener('click', compute);
+  [balanceInp, oldRateInp, newRateInp, costsInp].forEach(el => {
+    if (el) el.addEventListener('input', compute);
+  });
+  compute();
+})();
+</script>
 
-      if (openBtn) openBtn.onclick = () => { modal.classList.remove('hidden'); };
-      if (closeBtn) closeBtn.onclick = () => { modal.classList.add('hidden'); };
-      if (cancelBtn) cancelBtn.onclick = () => { modal.classList.add('hidden'); };
-
-      if (form) {
-        form.onsubmit = function(e) {
-          e.preventDefault();
-          const desc = document.getElementById('bug-description').value;
-          const expected = document.getElementById('bug-expected').value;
-          
-          logErrorToLedger({
-            type: 'user_report',
-            message: desc,
-            expected: expected,
-            slug: TOOL_SLUG,
-            timestamp: new Date().toISOString()
-          });
-
-          statusMsg.textContent = 'Report recorded for midnight triage! Thank you.';
-          statusMsg.className = 'text-xs text-emerald-400 block';
-          setTimeout(() => {
-            modal.classList.add('hidden');
-            form.reset();
-            statusMsg.classList.add('hidden');
-          }, 1500);
-        };
-      }
-    })();
-  </script>
-
-  <!-- DYNAMIC TOOL SCRIPT INJECTION AREA -->
-  <script>(function(){ console.log("Tool initialized"); })();</script>
 
 </body>
 </html>
