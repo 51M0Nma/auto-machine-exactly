@@ -1,9 +1,6 @@
 #!/usr/bin/env python3
 """
 Autonomous Self-Coding Micro-Tool Network - Master Orchestrator
-Runs in GitHub Actions every midnight UTC to discover search trends,
-heal runtime bugs, generate zero-API-burn static micro-tools via Google AI Studio,
-and deploy statically.
 """
 
 import os
@@ -12,17 +9,13 @@ import json
 import time
 import random
 import re
-import xml.etree.ElementTree as ET
 from datetime import datetime, timezone
 import urllib.request
 import urllib.error
 
-# Environment Variables & Configuration
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "").strip()
-ADSENSE_PUB_ID = os.environ.get("ADSENSE_PUB_ID", "").strip()
 SITE_URL = os.environ.get("SITE_URL", "https://51m0nma.github.io/auto-machine-exactly").rstrip("/")
 SITE_NAME = os.environ.get("SITE_NAME", "OmniTools Network")
-MANUAL_TOPIC = os.environ.get("MANUAL_TOPIC", "").strip()
 
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 REGISTRY_FILE = os.path.join(ROOT_DIR, "tools_registry.json")
@@ -31,23 +24,16 @@ TEMPLATE_FILE = os.path.join(ROOT_DIR, "template.html")
 ROOT_INDEX_FILE = os.path.join(ROOT_DIR, "index.html")
 
 class Log:
-    CYAN = "\033[96m"
-    GREEN = "\033[92m"
-    YELLOW = "\033[93m"
-    RED = "\033[91m"
-    BOLD = "\033[1m"
-    RESET = "\033[0m"
-
     @classmethod
-    def info(cls, msg): print(f"{cls.CYAN}[INFO]{cls.RESET} {msg}", flush=True)
+    def info(cls, msg): print(f"[INFO] {msg}", flush=True)
     @classmethod
-    def step(cls, step_name, msg): print(f"\n{cls.BOLD}{cls.CYAN}==> [{step_name}] {msg}{cls.RESET}", flush=True)
+    def step(cls, step_name, msg): print(f"\n==> [{step_name}] {msg}", flush=True)
     @classmethod
-    def success(cls, msg): print(f"{cls.GREEN}[SUCCESS]{cls.RESET} {msg}", flush=True)
+    def success(cls, msg): print(f"[SUCCESS] {msg}", flush=True)
     @classmethod
-    def warn(cls, msg): print(f"{cls.YELLOW}[WARN]{cls.RESET} {msg}", flush=True)
+    def warn(cls, msg): print(f"[WARN] {msg}", flush=True)
     @classmethod
-    def error(cls, msg): print(f"{cls.RED}[ERROR]{cls.RESET} {msg}", flush=True)
+    def error(cls, msg): print(f"[ERROR] {msg}", flush=True)
 
 def call_gemini_api(prompt, system_instruction=None, json_mode=False, max_retries=5):
     if not GEMINI_API_KEY:
@@ -55,7 +41,7 @@ def call_gemini_api(prompt, system_instruction=None, json_mode=False, max_retrie
         return None
 
     model_name = "gemini-1.5-flash"
-    url = f"https://generativelanguage.googleapis.com/v1/models/{model_name}:generateContent?key={GEMINI_API_KEY}"
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent?key={GEMINI_API_KEY}"
 
     payload = {
         "contents": [{"parts": [{"text": prompt}]}],
@@ -84,8 +70,8 @@ def call_gemini_api(prompt, system_instruction=None, json_mode=False, max_retrie
                 sleep_time = (base_delay * (2 ** (attempt - 1))) + random.uniform(0.5, 2.0)
                 Log.warn(f"Rate limited (429). Retrying in {sleep_time:.1f}s...")
                 time.sleep(sleep_time)
-            elif e.code == 404 and model_name == "gemini-2.5-flash":
-                model_name = "gemini-1.5-flash"
+            elif e.code == 404 and model_name == "gemini-1.5-flash":
+                model_name = "gemini-pro"
                 url = f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent?key={GEMINI_API_KEY}"
             else:
                 if attempt == max_retries: raise
@@ -121,22 +107,10 @@ def load_registry():
 def save_registry(registry):
     with open(REGISTRY_FILE, "w", encoding="utf-8") as f: json.dump(registry, f, indent=2, ensure_ascii=False)
 
-def load_error_log():
-    if os.path.exists(ERROR_LOG_FILE):
-        try:
-            with open(ERROR_LOG_FILE, "r", encoding="utf-8") as f: return json.load(f)
-        except Exception: pass
-    return {"unresolved": [], "resolved": []}
-
-def save_error_log(log_data):
-    with open(ERROR_LOG_FILE, "w", encoding="utf-8") as f: json.dump(log_data, f, indent=2, ensure_ascii=False)
-
 def get_curated_trend_signals():
     return [
         {"query": "Mortgage Refinance Break-Even Calculator", "snippet": "Compare current loan against new interest rates and closing costs"},
-        {"query": "AI Inference Token Cost Estimator", "snippet": "Calculate input/output token pricing across AI models"},
-        {"query": "GST Penalty and Late Filing Interest Calculator", "snippet": "Compute daily statutory late fees and interest"},
-        {"query": "Freelance Hourly Rate and Billable Utilization Calculator", "snippet": "Determine target billing rate based on annual income"}
+        {"query": "AI Inference Token Cost Estimator", "snippet": "Calculate input/output token pricing across AI models"}
     ]
 
 def step_b_trend_discovery(registry):
@@ -157,8 +131,7 @@ def step_b_trend_discovery(registry):
         "tool_title": chosen["query"],
         "slug": slug,
         "category": "Finance",
-        "description": chosen.get("snippet", "Interactive calculation tool."),
-        "formula_rationale": "Standard mathematical calculation."
+        "description": chosen.get("snippet", "Interactive calculation tool.")
     }
 
 def generate_tool_code(trend_data):
@@ -202,10 +175,10 @@ def assemble_and_save_tool(tool_entry, body_html, script_html):
         "<!-- {{TOOL_CANONICAL_URL}} -->": canonical_url,
         "<!-- {{JSON_LD_SCHEMA}} -->": f'<script type="application/ld+json">{{"@context":"[https://schema.org](https://schema.org)","@type":"WebApplication","name":"{tool_entry["title"]}","url":"{canonical_url}"}}</script>',
         "<!-- {{ADSENSE_PUB_ID_HEAD}} -->": "",
-        "<!-- {{VERSION_SWITCHER}} -->": f'<span class="text-xs text-slate-500">v{tool_entry.get("version", "1.0")}</span>',
+        "<!-- {{VERSION_SWITCHER}} -->": f'<span class="text-xs text-slate-500">v1.0</span>',
         "<!-- {{ADSENSE_SLOT_TOP}} -->": "",
         "<!-- {{TOOL_CATEGORY}} -->": tool_entry.get("category", "Utility"),
-        "<!-- {{TOOL_UPDATED_DATE}} -->": tool_entry.get("last_updated", "2026"),
+        "<!-- {{TOOL_UPDATED_DATE}} -->": "2026-10-14",
         "<!-- {{TOOL_VERIFICATION_STATUS}} -->": "Active",
         "<!-- {{TOOL_HEADER_SUBTITLE}} -->": tool_entry["description"],
         "<!-- {{TOOL_BODY}} -->": body_html,
@@ -223,11 +196,11 @@ def assemble_and_save_tool(tool_entry, body_html, script_html):
         f.write(final_html)
 
 def rebuild_root_directory(registry):
-    Log.step("STEP E", "Rebuilding central Root Directory (index.html)...")
+    Log.step("STEP E", "Rebuilding central Root Directory...")
     tools = registry.get("tools", [])
     cards = []
     for t in tools:
-        cards.append(f'<div class="p-5 bg-slate-900 border border-slate-800 rounded-xl"><a href="/{slug}/" class="text-blue-400 font-semibold">{t["title"]}</a><p class="text-xs text-slate-400 mt-1">{t["description"]}</p></div>'.replace('/{slug}/', f'/{t["slug"]}/'))
+        cards.append(f'<div class="p-5 bg-slate-900 border border-slate-800 rounded-xl"><a href="/{t["slug"]}/" class="text-blue-400 font-semibold">{t["title"]}</a><p class="text-xs text-slate-400 mt-1">{t["description"]}</p></div>')
 
     root_html = f"""<!DOCTYPE html>
 <html lang="en" class="h-full bg-slate-950 text-slate-100">
@@ -253,7 +226,7 @@ def main():
             "description": trend_data["description"],
             "category": trend_data.get("category", "Finance"),
             "version": "1.0",
-            "last_updated": datetime.now(timezone.utc).strftime("%Y-%m-%d"),
+            "last_updated": "2026-10-14",
             "status": "Active"
         }
         assemble_and_save_tool(tool_entry, tool_code["body"], tool_code["script"])
