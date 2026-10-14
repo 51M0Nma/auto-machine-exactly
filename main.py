@@ -6,12 +6,10 @@ Autonomous Self-Coding Micro-Tool Network - Master Orchestrator
 import os
 import sys
 import json
-import time
 import random
 import re
 from datetime import datetime, timezone
-import urllib.request
-import urllib.error
+import google.generativeai as genai
 
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "").strip()
 SITE_URL = os.environ.get("SITE_URL", "https://51m0nma.github.io/auto-machine-exactly").rstrip("/")
@@ -22,6 +20,10 @@ REGISTRY_FILE = os.path.join(ROOT_DIR, "tools_registry.json")
 ERROR_LOG_FILE = os.path.join(ROOT_DIR, "error_log.json")
 TEMPLATE_FILE = os.path.join(ROOT_DIR, "template.html")
 ROOT_INDEX_FILE = os.path.join(ROOT_DIR, "index.html")
+
+# Configure Google GenAI SDK
+if GEMINI_API_KEY:
+    genai.configure(api_key=GEMINI_API_KEY)
 
 class Log:
     @classmethod
@@ -35,51 +37,26 @@ class Log:
     @classmethod
     def error(cls, msg): print(f"[ERROR] {msg}", flush=True)
 
-def call_gemini_api(prompt, system_instruction=None, json_mode=False, max_retries=5):
+def call_gemini_api(prompt, json_mode=False):
     if not GEMINI_API_KEY:
         Log.warn("GEMINI_API_KEY is not set. Using robust fallback generation.")
         return None
 
-    model_name = "gemini-1.5-flash"
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent?key={GEMINI_API_KEY}"
+    try:
+        # Use gemini-1.5-flash via official SDK
+        generation_config = {"temperature": 0.2 if json_mode else 0.4}
+        if json_mode:
+            generation_config["response_mime_type"] = "application/json"
 
-    payload = {
-        "contents": [{"parts": [{"text": prompt}]}],
-        "generationConfig": {"temperature": 0.2 if json_mode else 0.4, "maxOutputTokens": 8192}
-    }
-    if system_instruction:
-        payload["systemInstruction"] = {"parts": [{"text": system_instruction}]}
-    if json_mode:
-        payload["generationConfig"]["responseMimeType"] = "application/json"
-
-    data = json.dumps(payload).encode("utf-8")
-    headers = {"Content-Type": "application/json", "User-Agent": "aistudio-build-microtool-orchestrator"}
-
-    base_delay = 2.0
-    for attempt in range(1, max_retries + 1):
-        try:
-            req = urllib.request.Request(url, data=data, headers=headers, method="POST")
-            with urllib.request.urlopen(req, timeout=60) as resp:
-                resp_data = json.loads(resp.read().decode("utf-8"))
-                candidates = resp_data.get("candidates", [])
-                if not candidates:
-                    raise ValueError("No candidates returned from Gemini API")
-                return candidates[0].get("content", {}).get("parts", [{}])[0].get("text", "").strip()
-        except urllib.error.HTTPError as e:
-            if e.code == 429:
-                sleep_time = (base_delay * (2 ** (attempt - 1))) + random.uniform(0.5, 2.0)
-                Log.warn(f"Rate limited (429). Retrying in {sleep_time:.1f}s...")
-                time.sleep(sleep_time)
-            elif e.code == 404 and model_name == "gemini-1.5-flash":
-                model_name = "gemini-pro"
-                url = f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent?key={GEMINI_API_KEY}"
-            else:
-                if attempt == max_retries: raise
-                time.sleep(base_delay * attempt)
-        except Exception:
-            if attempt == max_retries: raise
-            time.sleep(base_delay * attempt)
-    return None
+        model = genai.GenerativeModel(
+            model_name="gemini-1.5-flash",
+            generation_config=generation_config
+        )
+        response = model.generate_content(prompt)
+        return response.text.strip()
+    except Exception as e:
+        Log.error(f"Gemini API error: {str(e)}")
+        return None
 
 def clean_json_response(raw_text):
     if not raw_text: return {}
@@ -175,7 +152,7 @@ def assemble_and_save_tool(tool_entry, body_html, script_html):
         "<!-- {{TOOL_CANONICAL_URL}} -->": canonical_url,
         "<!-- {{JSON_LD_SCHEMA}} -->": f'<script type="application/ld+json">{{"@context":"[https://schema.org](https://schema.org)","@type":"WebApplication","name":"{tool_entry["title"]}","url":"{canonical_url}"}}</script>',
         "<!-- {{ADSENSE_PUB_ID_HEAD}} -->": "",
-        "<!-- {{VERSION_SWITCHER}} -->": f'<span class="text-xs text-slate-500">v1.0</span>',
+        "<!-- {{VERSION_SWITCHER}} -->": '<span class="text-xs text-slate-500">v1.0</span>',
         "<!-- {{ADSENSE_SLOT_TOP}} -->": "",
         "<!-- {{TOOL_CATEGORY}} -->": tool_entry.get("category", "Utility"),
         "<!-- {{TOOL_UPDATED_DATE}} -->": "2026-10-14",
